@@ -231,7 +231,10 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
             slip.legs.forEach(leg => {
                 const stats = liveData[leg.player_name] || {};
                 const current = stats[leg.metric] || 0;
-
+                // Custom formatting for Game Total vs Players
+                const displayName = (leg.player_name === "Game Total") 
+                            ? `OVERALL GAME SCORE` 
+                            : leg.player_name;
                 // Win/Loss Calculation
                 const isWin = (leg.direction === 'over') ? (current >= leg.target) : (current <= leg.target);
                 const legStatus = isWin ? 'winning' : 'losing';
