@@ -41,21 +41,18 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
         }
         body { font-family: 'Segoe UI', sans-serif; background: var(--deep-black); color: #eee; margin: 0; padding: 0; }
         
-        /* Score Ticker */
+        /* Ticker */
         .ticker-wrap { 
             background: #111; padding: 10px; display: flex; gap: 15px; overflow-x: auto; 
             border-bottom: 1px solid var(--regal-gold); scrollbar-width: none;
         }
         .ticker-wrap::-webkit-scrollbar { display: none; }
-        .score-box { 
-            background: #222; min-width: 160px; padding: 10px; border-radius: 8px; border: 1px solid #333; 
-            flex-shrink: 0; font-size: 0.85em; 
-        }
+        .score-box { background: #222; min-width: 160px; padding: 10px; border-radius: 8px; border: 1px solid #333; flex-shrink: 0; font-size: 0.85em; }
         .score-row { display: flex; justify-content: space-between; margin-bottom: 2px; }
         .winning-team { color: var(--win-green); font-weight: bold; }
         .game-meta { font-size: 0.7em; color: var(--regal-gold); text-transform: uppercase; border-top: 1px solid #333; margin-top: 5px; }
 
-        /* Dashboard & Slips */
+        /* Dashboard */
         .container { padding: 20px; }
         header { border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: baseline; }
         h1 { color: var(--regal-gold); letter-spacing: 2px; margin: 0; font-weight: bold; }
@@ -63,58 +60,29 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
         .dashboard { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
         .slip-card { background: var(--card-bg); border: 1px solid #333; border-radius: 12px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); position: relative; overflow: hidden; transition: background 0.4s ease; }
         
-        /* Legend Bet Animation */
+        /* Aesthetics */
         .legend-bet { border: 2px solid var(--regal-gold) !important; animation: goldPulse 2s infinite; }
         @keyframes goldPulse { 0% { box-shadow: 0 0 5px var(--regal-gold); } 50% { box-shadow: 0 0 20px var(--regal-gold); } 100% { box-shadow: 0 0 5px var(--regal-gold); } }
-
-        /* Finalized Backgrounds */
         .slip-final-win { background: linear-gradient(145deg, #1a1a1a, #0b2e18) !important; }
         .slip-final-loss { background: linear-gradient(145deg, #1a1a1a, #3b1414) !important; }
-
-        /* Corner Ribbon System */
-        .slip-card::after {
-            content: "";
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 0;
-            height: 0;
-            border-style: solid;
-            border-width: 0 60px 60px 0;
-            border-color: transparent transparent transparent transparent;
-            z-index: 10;
-        }
+        .slip-card::after { content: ""; position: absolute; top: 0; right: 0; width: 0; height: 0; border-style: solid; border-width: 0 60px 60px 0; border-color: transparent transparent transparent transparent; z-index: 10; }
         .slip-final-win::after { border-color: transparent var(--win-green) transparent transparent; }
         .slip-final-loss::after { border-color: transparent var(--loss-red) transparent transparent; }
+        .status-ribbon { position: absolute; top: 15px; right: -15px; transform: rotate(45deg); width: 70px; text-align: center; font-size: 0.65em; font-weight: bold; color: #fff; z-index: 11; text-transform: uppercase; letter-spacing: 1px; pointer-events: none; }
 
-        .status-ribbon {
-            position: absolute;
-            top: 15px;
-            right: -15px;
-            transform: rotate(45deg);
-            width: 70px;
-            text-align: center;
-            font-size: 0.65em;
-            font-weight: bold;
-            color: #fff;
-            z-index: 11;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            pointer-events: none;
-        }
-
-        .slip-header { border-bottom: 1px solid #222; margin-bottom: 5px; padding-bottom: 5px; font-weight: bold; color: var(--regal-gold); display: flex; justify-content: space-between; }
-        
         /* Leg Content */
         .leg { margin-bottom: 10px; padding: 12px; border-radius: 8px; background: #222; border-left: 4px solid #444; position: relative; z-index: 2; }
         .leg.winning { border-left-color: var(--win-green); }
         .leg.losing { border-left-color: var(--loss-red); }
         .player-name { display: block; font-weight: bold; font-size: 1.1em; color: #fff; }
-        .metric-label { font-size: 0.75em; color: var(--text-muted); text-transform: uppercase; }
-        .stat-line { display: flex; justify-content: space-between; margin-top: 8px; align-items: baseline; }
         .current-stat { font-family: 'Courier New', monospace; font-size: 1.4em; color: var(--regal-gold); font-weight: bold;}
 
-        #add-btn { position: fixed; bottom: 30px; right: 30px; background: var(--regal-gold); color: black; border: none; width: 60px; height: 60px; border-radius: 50%; font-size: 30px; cursor: pointer; z-index: 50;}
+        /* Modal Elements */
+        #add-btn { position: fixed; bottom: 30px; right: 30px; background: var(--regal-gold); color: black; border: none; width: 60px; height: 60px; border-radius: 50%; font-size: 30px; cursor: pointer; z-index: 50; }
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); }
+        .modal-content { background: var(--card-bg); margin: 5% auto; padding: 30px; border: 1px solid var(--regal-gold); width: 450px; border-radius: 12px; }
+        input, select, button.submit { width: 100%; padding: 12px; margin: 8px 0; background: #2a2a2a; border: 1px solid #444; color: white; border-radius: 6px; box-sizing: border-box; }
+        button.submit { background: var(--regal-gold); color: black; font-weight: bold; cursor: pointer; border: none; }
     </style>
 </head>
 <body>
@@ -126,119 +94,57 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
         <h1>PORRECA’S PARLAY PALACE</h1>
         <div id="sync-status" style="font-size: 0.8em; color: var(--text-muted);">Initializing...</div>
     </header>
-
     <div class="dashboard" id="main-dashboard"></div>
 </div>
 
 <button id="add-btn" onclick="openModal()">+</button>
 
+<div id="slipModal" class="modal">
+    <div class="modal-content">
+        <h2 style="color: var(--regal-gold); margin-top: 0;">Build Parlay Slip</h2>
+        
+        <div id="leg-builder" style="background: #111; padding: 15px; border-radius: 8px; border: 1px dashed #444;">
+            <select id="leg_type" onchange="toggleLegInputs()">
+                <option value="player">Player Prop</option>
+                <option value="ml">Moneyline</option>
+                <option value="total">Game Total</option>
+            </select>
+
+            <div id="player_input">
+                <input type="text" id="p_name" placeholder="Player Name">
+                <select id="metric">
+                    <option value="pass_yds">Passing Yds</option>
+                    <option value="rush_yds">Rushing Yds</option>
+                    <option value="rec_yds">Receiving Yds</option>
+                    <option value="receptions">Receptions</option>
+                </select>
+            </div>
+
+            <div id="ml_input" style="display:none;"><select id="ml_team_select"></select></div>
+            <div id="total_input" style="display:none;"><select id="total_game_select"></select></div>
+
+            <div id="line_inputs">
+                <input type="number" step="0.5" id="target" placeholder="Line / Target">
+                <select id="direction">
+                    <option value="over">OVER / WIN</option>
+                    <option value="under">UNDER</option>
+                </select>
+            </div>
+
+            <input type="text" id="slip_odds" placeholder="Odds (e.g. +1000)">
+            <input type="number" step="0.01" id="slip_wager" placeholder="Wager Amount">
+
+            <button type="button" class="submit" onclick="addLegToStaging()">+ Add Leg</button>
+        </div>
+
+        <div id="staged-list" style="margin-top:20px; color: var(--regal-gold); font-size: 0.85em;"></div>
+        <button type="button" id="save-slip-btn" class="submit" style="display:none;" onclick="submitFullSlip()">Commit Full Slip</button>
+        <button type="button" style="background:none; border:none; color:#666; cursor:pointer; width:100%; margin-top:10px;" onclick="closeModal()">Cancel</button>
+    </div>
+</div>
+
 <script>
     const mySlips = <?php echo json_encode($slips); ?>;
+    let stagedLegs = [];
 
-    function calculatePayout(wager, odds) {
-        if (!wager || !odds) return null;
-        const numOdds = parseInt(odds.toString().replace('+', ''));
-        let profit = 0;
-        if (numOdds > 0) { profit = wager * (numOdds / 100); } 
-        else { profit = wager * (100 / Math.abs(numOdds)); }
-        return (parseFloat(wager) + profit).toFixed(2);
-    }
-
-    function renderTicker(liveData) {
-        const ticker = document.getElementById('game-ticker');
-        ticker.innerHTML = '';
-        (liveData.league_slate || []).forEach(game => {
-            const box = document.createElement('div');
-            box.className = 'score-box';
-            box.innerHTML = `
-                <div class="score-row"><span class="${game.away_s > game.home_s ? 'winning-team' : ''}">${game.away}</span><span>${game.away_s}</span></div>
-                <div class="score-row"><span class="${game.home_s > game.away_s ? 'winning-team' : ''}">${game.home}</span><span>${game.home_s}</span></div>
-                <div class="game-meta">${game.status} - ${game.clock}</div>`;
-            ticker.appendChild(box);
-        });
-    }
-
-    function renderDashboard(liveData) {
-        const dashboard = document.getElementById('main-dashboard');
-        dashboard.innerHTML = '';
-        
-        mySlips.forEach(slip => {
-            let allFinal = true;
-            let slipWinning = true;
-            let legsHtml = '';
-
-            slip.legs.forEach(leg => {
-                const stats = liveData[leg.player_name] || {};
-                let currentLabel = 0, isWin = false;
-                
-                // Track if all games in the slip are finished
-                if ((stats.gameStatus || 'Upcoming') !== 'Final') allFinal = false;
-
-                if (leg.metric === 'moneyline') {
-                    const diff = (stats.score || 0) - (stats.opponent_score || 0);
-                    currentLabel = (diff > 0 ? '+' : '') + diff;
-                    isWin = (stats.score || 0) > (stats.opponent_score || 0);
-                } else {
-                    const rawVal = stats[leg.metric] || 0;
-                    currentLabel = rawVal;
-                    isWin = (leg.direction === 'over') ? (rawVal >= leg.target) : (rawVal <= leg.target);
-                }
-
-                if (!isWin) slipWinning = false;
-
-                legsHtml += `
-                    <div class="leg ${isWin ? 'winning' : 'losing'}">
-                        <span class="player-name">${leg.player_name}</span>
-                        <span class="metric-label">${leg.metric.replace('_',' ')}</span>
-                        <div class="stat-line">
-                            <span style="color: #666; font-size: 0.8em;">Target: ${leg.direction.toUpperCase()} ${leg.target}</span>
-                            <span class="current-stat">${currentLabel}</span>
-                        </div>
-                    </div>`;
-            });
-
-            const card = document.createElement('div');
-            
-            // Check for Legend Odds (+1000 or higher)
-            const numericOdds = parseInt((slip.odds || "").toString().replace('+', ''));
-            const isLegend = numericOdds >= 1000;
-
-            let finalClass = (allFinal) ? (slipWinning ? 'slip-final-win' : 'slip-final-loss') : '';
-            card.className = `slip-card ${finalClass} ${isLegend ? 'legend-bet' : ''}`;
-            
-            // Ribbon Text
-            let ribbonHtml = allFinal ? `<div class="status-ribbon">${slipWinning ? 'Win' : 'Loss'}</div>` : '';
-
-            let metaHtml = '';
-            if (slip.odds || slip.wager || slip.payout) {
-                const displayPayout = slip.payout || calculatePayout(slip.wager, slip.odds);
-                metaHtml = `<div class="slip-meta" style="display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 0.8em; color: #888; border-bottom: 1px solid #222; padding-bottom: 10px; position: relative; z-index: 2;">`;
-                if (slip.odds) metaHtml += `<span>ODDS: <b style="color:var(--regal-gold)">${slip.odds}</b></span>`;
-                if (slip.wager) metaHtml += `<span>WAGER: <b>$${slip.wager}</b></span>`;
-                if (displayPayout) metaHtml += `<span>PAYOUT: <b style="color:var(--win-green)">$${displayPayout}</b></span>`;
-                metaHtml += `</div>`;
-            }
-
-            card.innerHTML = ribbonHtml + `<div class="slip-header" style="position: relative; z-index: 2;"><span>SLIP: ${slip.slip_id}</span></div>` + metaHtml + legsHtml;
-            dashboard.appendChild(card);
-        });
-    }
-
-    async function smartSync() {
-        try {
-            const syncRes = await fetch('index.php?action=sync');
-            const syncStatus = await syncRes.json();
-            const statsRes = await fetch('data/latest_stats.json');
-            const liveData = await statsRes.json();
-            
-            renderDashboard(liveData);
-            renderTicker(liveData);
-            document.getElementById('sync-status').innerText = (syncStatus.status === 'updated') ? "Live" : `Cached (${syncStatus.since}s)`;
-        } catch (e) { document.getElementById('sync-status').innerText = "Offline"; }
-    }
-
-    smartSync();
-    setInterval(smartSync, 5000); 
-</script>
-</body>
-</html>
+    // --- 1. MODAL LOGIC ---
