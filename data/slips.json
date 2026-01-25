@@ -47,6 +47,12 @@
                 "metric": "moneyline",
                 "target": 0,
                 "direction": "over"
+            },
+            {
+                "player_name": "Game Total",
+                "metric": "total_points",
+                "target": 39.5,
+                "direction": "under"
             }
         ],
         "slip_id": "74A67",
