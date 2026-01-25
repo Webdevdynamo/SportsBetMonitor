@@ -22,7 +22,31 @@ $playerData = fetchMsn($player_stats_url);
 $gameData = fetchMsn($game_scores_url);
 $flatStats = [];
 
-// --- PART 1: PLAYER STATS (Existing Logic) ---
+// --- PART 1: TEAM & GAME TOTALS (Multi-Game) ---
+if (isset($gameData['value'][0]['games'])) {
+    foreach ($gameData['value'][0]['games'] as $g) {
+        $teamA = $g['participants'][0]['team']['shortName']['rawName'];
+        $teamB = $g['participants'][1]['team']['shortName']['rawName'];
+        $scoreA = (int)$g['participants'][0]['result']['score'];
+        $scoreB = (int)$g['participants'][1]['result']['score'];
+        
+        // 1. Map Individual Teams (for Moneyline)
+        $flatStats[$teamA] = ['score' => $scoreA, 'opponent_score' => $scoreB];
+        $flatStats[$teamB] = ['score' => $scoreB, 'opponent_score' => $scoreA];
+
+        // 2. Map Unique Game Totals (Format: "Team@Team Total")
+        $totalKey = "{$teamA}@{$teamB} Total";
+        $flatStats[$totalKey] = [
+            'total_points' => $scoreA + $scoreB,
+            'clock' => $g['gameState']['gameClock'] ?? 'N/A'
+        ];
+        
+        // Also keep a generic "Game Total" for the most recent game processed
+        $flatStats["Game Total"] = $flatStats[$totalKey];
+    }
+}
+
+// --- PART 2: PLAYER STATS (Aggregated across all games) ---
 if (isset($playerData['value'][0]['statistics'])) {
     foreach ($playerData['value'][0]['statistics'] as $game) {
         foreach ($game['teamPlayerStatistics'] as $team) {
@@ -34,54 +58,10 @@ if (isset($playerData['value'][0]['statistics'])) {
                         'rush_yds' => $p['rushingStatistics']['yards'] ?? 0,
                         'rec_yds'  => $p['receivingStatistics']['yards'] ?? 0,
                         'receptions' => $p['receivingStatistics']['receptions'] ?? 0,
-                        'total_tds' => ($p['passingStatistics']['touchdowns'] ?? 0) + ($p['rushingStatistics']['touchdowns'] ?? 0) + ($p['receivingStatistics']['touchdowns'] ?? 0)
                     ];
                 }
             }
         }
-    }
-}
-
-// --- PART 2: GAME SCORING (New Logic) ---
-if (isset($gameData['value'][0]['games'])) {
-    foreach ($gameData['value'][0]['games'] as $g) {
-        $gameId = $g['id'] ?? 'unknown';
-        $p1 = $g['participants'][0]['result']['score'] ?? 0;
-        $p2 = $g['participants'][1]['result']['score'] ?? 0;
-        $total = (int)$p1 + (int)$p2;
-
-        // We use a special naming convention for game totals so JS can find them
-        $flatStats["Game Total"] = [
-            'total_points' => $total,
-            'game_id'      => $gameId,
-            'clock'        => $g['gameState']['gameClock'] ?? null,
-            'status'       => $g['gameState']['gameStatus'] ?? 'Unknown'
-        ];
-    }
-}
-
-// --- PART 3: TEAM SCORES (For Moneyline) ---
-if (isset($gameData['value'][0]['games'])) {
-    foreach ($gameData['value'][0]['games'] as $g) {
-        $teamA = $g['participants'][0];
-        $teamB = $g['participants'][1];
-
-        $nameA = $teamA['team']['shortName']['rawName']; // e.g., "Patriots"
-        $nameB = $teamB['team']['shortName']['rawName']; // e.g., "Broncos"
-
-        // Map Team A
-        $flatStats[$nameA] = [
-            'score' => (int)$teamA['result']['score'],
-            'opponent_score' => (int)$teamB['result']['score'],
-            'is_final' => ($g['gameState']['gameStatus'] === 'Final')
-        ];
-
-        // Map Team B
-        $flatStats[$nameB] = [
-            'score' => (int)$teamB['result']['score'],
-            'opponent_score' => (int)$teamA['result']['score'],
-            'is_final' => ($g['gameState']['gameStatus'] === 'Final')
-        ];
     }
 }
 
