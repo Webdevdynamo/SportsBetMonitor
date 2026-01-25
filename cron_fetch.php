@@ -1,7 +1,7 @@
 <?php
 /**
- * Gridiron Giga-Brains: Multi-Game All-Day Crawler
- * PHP 7.4 - Operational Optimization with gameStatus Tracking
+ * Porreca’s Parlay Palace: Multi-Game Crawler
+ * PHP 7.4 - Includes Defensive D/ST TD Tracking
  */
 
 // 1. CONFIGURATION & SESSION SETUP
@@ -18,8 +18,7 @@ function fetchMsn($url) {
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
-    curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
+    curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0');
     $res = curl_exec($ch);
     $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
@@ -30,7 +29,7 @@ function fetchMsn($url) {
 $scoutUrl = "https://api.msn.com/sports/livearoundtheleague?" . http_build_query([
     'apikey' => $apiKey, 'version' => '1.0', 'cm' => 'en-us', 'tzoffset' => '-7',
     'activityId' => $activityId, 'it' => 'web', 'user' => $userToken, 'scn' => 'ANON',
-    'datetime' => $currentDateTime, 'id' => 'Football_NFL', 'sport' => 'Football', 'withleaguereco' => 'true'
+    'datetime' => $currentDateTime, 'id' => 'Football_NFL', 'sport' => 'Football'
 ]);
 
 $leagueData = fetchMsn($scoutUrl);
@@ -49,7 +48,6 @@ if (isset($leagueData['value'][0]['schedules'])) {
                 $scoreA = (int)($g['participants'][0]['result']['score'] ?? 0);
                 $scoreB = (int)($g['participants'][1]['result']['score'] ?? 0);
 
-                // TRACK STATUS: Store gameStatus in team and total objects
                 $flatStats[$teamA] = ['score' => $scoreA, 'opponent_score' => $scoreB, 'gameStatus' => $status];
                 $flatStats[$teamB] = ['score' => $scoreB, 'opponent_score' => $scoreA, 'gameStatus' => $status];
                 
@@ -71,28 +69,45 @@ if (isset($leagueData['value'][0]['schedules'])) {
     }
 }
 
-// 3. STAGE 2: DEEP STATISTICS
+// 3. STAGE 2: DEEP STATISTICS (PLAYER + D/ST)
 foreach ($gamesToFetch as $game) {
     $deepUrl = "https://api.msn.com/sports/statistics?" . http_build_query([
         'apikey' => $apiKey, 'version' => '1.0', 'cm' => 'en-us', 'activityId' => $activityId,
-        'it' => 'web', 'user' => $userToken, 'scn' => 'ANON', 'ids' => $game['id'],
-        'type' => 'Game', 'scope' => 'Playergame', 'sport' => 'Football', 'leagueid' => $game['league']
+        'ids' => $game['id'], 'type' => 'Game', 'scope' => 'Playergame', 'sport' => 'Football'
     ]);
 
     $deepData = fetchMsn($deepUrl);
 
     if (isset($deepData['value'][0]['statistics'])) {
         foreach ($deepData['value'][0]['statistics'] as $statEntry) {
+            
+            // --- NEW: TEAM D/ST TOUCHDOWNS ---
+            if (isset($statEntry['teamStatistics'])) {
+                foreach ($statEntry['teamStatistics'] as $tStat) {
+                    $teamRaw = $tStat['team']['shortName']['rawName'];
+                    $dstKey = $teamRaw . " D/ST";
+                    $defTDs = ($tStat['defensiveStatistics']['interceptionTouchdowns'] ?? 0) + 
+                             ($tStat['defensiveStatistics']['fumbleRecoveryTouchdowns'] ?? 0);
+
+                    $flatStats[$dstKey] = [
+                        'total_tds' => $defTDs,
+                        'gameStatus' => $game['status']
+                    ];
+                }
+            }
+
+            // --- PLAYER STATISTICS ---
             foreach ($statEntry['teamPlayerStatistics'] as $team) {
                 foreach ($team['playerStatistics'] as $p) {
                     $name = $p['player']['name']['rawName'] ?? null;
                     if ($name) {
                         $flatStats[$name] = [
-                            'gameStatus' => $game['status'], // TRACK STATUS: Map game status to individual player
+                            'gameStatus' => $game['status'],
                             'pass_yds' => $p['passingStatistics']['yards'] ?? 0,
                             'rush_yds' => $p['rushingStatistics']['yards'] ?? 0,
                             'rec_yds' => $p['receivingStatistics']['yards'] ?? 0,
                             'receptions' => $p['receivingStatistics']['receptions'] ?? 0,
+                            'interceptions' => $p['passingStatistics']['interceptionsThrown'] ?? 0,
                             'total_tds' => ($p['passingStatistics']['touchdowns'] ?? 0) + 
                                            ($p['rushingStatistics']['touchdowns'] ?? 0) + 
                                            ($p['receivingStatistics']['touchdowns'] ?? 0)
@@ -107,7 +122,5 @@ foreach ($gamesToFetch as $game) {
 // 4. ATOMIC SAVE
 if (!empty($flatStats)) {
     if (!is_dir($stats_dir)) mkdir($stats_dir, 0755, true);
-    $tmp = $cache_file . '.tmp';
-    file_put_contents($tmp, json_encode($flatStats, JSON_PRETTY_PRINT));
-    rename($tmp, $cache_file);
+    file_put_contents($cache_file, json_encode($flatStats, JSON_PRETTY_PRINT));
 }
