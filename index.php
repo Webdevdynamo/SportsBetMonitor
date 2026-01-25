@@ -1,3 +1,3 @@
 <?php
-echo "HERE";
+echo "HERE2";
 ?>
