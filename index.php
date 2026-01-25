@@ -229,12 +229,27 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
     function renderDashboard(liveData) {
         const dashboard = document.getElementById('main-dashboard');
         dashboard.innerHTML = '';
-        mySlips.forEach(slip => {
-            let allFinal = true, slipWinning = true, legsHtml = '';
+
+        // --- NEW: SORTING LOGIC ---
+        // We create a temporary array that includes a 'isFinal' flag for sorting
+        const sortedSlips = mySlips.map(slip => {
+            const isFinal = slip.legs.every(leg => {
+                const stats = liveData[leg.player_name] || {};
+                return (stats.gameStatus === 'Final');
+            });
+            return { ...slip, isFinal };
+        }).sort((a, b) => a.isFinal - b.isFinal); // False (0) comes before True (1)
+
+        sortedSlips.forEach(slip => {
+            let allFinal = slip.isFinal;
+            let slipWinning = true;
+            let legsHtml = '';
+
             slip.legs.forEach(leg => {
                 const stats = liveData[leg.player_name] || {};
                 let currentLabel = 0, isWin = false;
-                if ((stats.gameStatus || 'Upcoming') !== 'Final') allFinal = false;
+                
+                // Track win/loss for the ribbon and background color
                 if (leg.metric === 'moneyline') {
                     const diff = (stats.score || 0) - (stats.opponent_score || 0);
                     currentLabel = (diff > 0 ? '+' : '') + diff;
@@ -245,10 +260,14 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
                     isWin = (leg.direction === 'over') ? (rawVal >= leg.target) : (rawVal <= leg.target);
                 }
                 if (!isWin) slipWinning = false;
+
                 legsHtml += `<div class="leg ${isWin ? 'winning' : 'losing'}">
                     <span class="player-name">${leg.player_name}</span>
                     <span class="metric-label">${leg.metric.replace('_',' ')}</span>
-                    <div class="stat-line"><span style="color: #666; font-size: 0.8em;">Target: ${leg.direction.toUpperCase()} ${leg.target}</span><span class="current-stat">${currentLabel}</span></div>
+                    <div class="stat-line">
+                        <span style="color: #666; font-size: 0.8em;">Target: ${leg.direction.toUpperCase()} ${leg.target}</span>
+                        <span class="current-stat">${currentLabel}</span>
+                    </div>
                 </div>`;
             });
 
