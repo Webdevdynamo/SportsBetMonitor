@@ -1,7 +1,7 @@
 [
   {
-    "slip_id": "SGP-92",
-    "created_at": "2026-01-25 15:36:55",
+    "slip_id": "SGP-0092",
+    "created_at": "2026-01-25 15:38:00",
     "legs": [
       { "player_name": "Courtland Sutton", "metric": "receptions", "target": 3, "direction": "over" },
       { "player_name": "Rhamondre Stevenson", "metric": "rush_yds", "target": 60, "direction": "over" },
@@ -11,7 +11,7 @@
   },
   {
     "slip_id": "SGP-9541",
-    "created_at": "2026-01-25 15:36:55",
+    "created_at": "2026-01-25 15:38:00",
     "legs": [
       { "player_name": "RJ Harvey", "metric": "total_tds", "target": 0.5, "direction": "over" },
       { "player_name": "Courtland Sutton", "metric": "total_tds", "target": 0.5, "direction": "over" },
@@ -22,7 +22,7 @@
   },
   {
     "slip_id": "SGP-PLUS-1997",
-    "created_at": "2026-01-25 15:36:55",
+    "created_at": "2026-01-25 15:38:00",
     "legs": [
       { "player_name": "Patriots@Broncos Total", "metric": "total_points", "target": 44.5, "direction": "under" },
       { "player_name": "Rhamondre Stevenson", "metric": "rush_yds", "target": 40, "direction": "over" },
@@ -30,6 +30,30 @@
       { "player_name": "Kenneth Walker III", "metric": "rush_yds", "target": 60, "direction": "over" },
       { "player_name": "Jaxon Smith-Njigba", "metric": "receptions", "target": 5, "direction": "over" },
       { "player_name": "Puka Nacua", "metric": "rec_yds", "target": 50, "direction": "over" }
+    ]
+  },
+  {
+    "slip_id": "SGP-6592",
+    "created_at": "2026-01-25 15:38:00",
+    "wager": 10.00,
+    "payout": 70.50,
+    "legs": [
+      { "player_name": "Puka Nacua", "metric": "receptions", "target": 6, "direction": "over" },
+      { "player_name": "Kenneth Walker III", "metric": "rush_yds", "target": 70, "direction": "over" },
+      { "player_name": "Kyren Williams", "metric": "total_tds", "target": 0.5, "direction": "over" },
+      { "player_name": "Cooper Kupp", "metric": "rec_yds", "target": 15, "direction": "over" }
+    ]
+  },
+  {
+    "slip_id": "SGP-6591",
+    "created_at": "2026-01-25 15:38:00",
+    "wager": 15.00,
+    "payout": 840.00,
+    "legs": [
+      { "player_name": "Sam Darnold", "metric": "interceptions", "target": 2, "direction": "over" },
+      { "player_name": "Rams", "metric": "spread", "target": -3.5, "direction": "over" },
+      { "player_name": "Rams D/ST", "metric": "total_tds", "target": 0.5, "direction": "over" },
+      { "player_name": "Puka Nacua", "metric": "total_tds", "target": 0.5, "direction": "over" }
     ]
   }
 ]
