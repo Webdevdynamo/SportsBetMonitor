@@ -51,7 +51,6 @@ $scoutUrl = "https://api.msn.com/sports/livearoundtheleague?" . http_build_query
 
 // 3. EXECUTE SCOUT
 $leagueData = fetchMsn($scoutUrl);
-print_r($leagueData);
 $flatStats = [];
 $activeGameIds = [];
 
@@ -101,6 +100,7 @@ foreach ($activeGameIds as $game) {
     ];
 
     $deepUrl = "https://api.msn.com/sports/statistics?" . http_build_query($statParams);
+    print_r($deepUrl);
     $deepData = fetchMsn($deepUrl);
 
     if (isset($deepData['value'][0]['statistics'])) {
