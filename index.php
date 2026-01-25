@@ -83,38 +83,86 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
 <button id="add-btn" title="Add New Betting Slip" onclick="openModal()">+</button>
 
 <div id="slipModal" class="modal">
-    <div class="modal-content">
-        <h2 style="color: var(--regal-gold); margin-top: 0;">New Betting Slip</h2>
-        <form id="slipForm">
-            <label class="metric-label">Player / Prop Name</label>
-            <input type="text" id="p_name" placeholder="e.g. Courtland Sutton" required>
-            
-            <label class="metric-label">Metric</label>
-            <select id="metric">
-                <option value="pass_yds">Passing Yards</option>
-                <option value="rush_yds">Rushing Yards</option>
-                <option value="rec_yds">Receiving Yards</option>
-                <option value="receptions">Receptions</option>
-                <option value="total_tds">Total TDs (All types)</option>
-                <option value="total_points">Game Total Points</option>
-            </select>
-            
-            <label class="metric-label">Target Line</label>
-            <input type="number" step="0.5" id="target" placeholder="e.g. 60.5" required>
-            
-            <label class="metric-label">Direction</label>
-            <select id="direction">
-                <option value="over">OVER / MORE</option>
-                <option value="under">UNDER / LESS</option>
-            </select>
-            
-            <button type="button" class="submit" onclick="submitSlip()">Add Slip to Tracker</button>
-            <button type="button" style="background:none; border:none; color:#666; cursor:pointer; width:100%; margin-top:10px;" onclick="closeModal()">Close</button>
-        </form>
+    <div class="modal-content" style="width: 500px;">
+        <h2 style="color: var(--regal-gold); margin-top: 0;">Build Parlay Slip</h2>
+        
+        <div id="leg-builder" style="background: #111; padding: 15px; border-radius: 8px; border: 1px dashed #444;">
+            <input type="text" id="p_name" placeholder="Player Name">
+            <div style="display: flex; gap: 10px;">
+                <select id="metric" style="flex: 2;">
+                    <option value="pass_yds">Passing Yds</option>
+                    <option value="rush_yds">Rushing Yds</option>
+                    <option value="rec_yds">Receiving Yds</option>
+                    <option value="receptions">Receptions</option>
+                    <option value="total_tds">Total TDs</option>
+                </select>
+                <input type="number" step="0.5" id="target" placeholder="Line" style="flex: 1;">
+                <select id="direction" style="flex: 1;">
+                    <option value="over">Over</option>
+                    <option value="under">Under</option>
+                </select>
+            </div>
+            <button type="button" class="submit" style="background: #444; color: white;" onclick="addLegToStaging()">+ Add Leg to Slip</button>
+        </div>
+
+        <div id="staged-legs-container" style="margin-top: 20px;">
+            <p class="metric-label">Staged Legs:</p>
+            <ul id="staged-list" style="list-style: none; padding: 0;"></ul>
+        </div>
+
+        <button type="button" id="save-slip-btn" class="submit" style="display:none;" onclick="submitFullSlip()">Save Full Slip</button>
+        <button type="button" style="background:none; border:none; color:#666; cursor:pointer; width:100%; margin-top:10px;" onclick="closeModal()">Cancel</button>
     </div>
 </div>
 
 <script>
+    let stagedLegs = [];
+
+    function addLegToStaging() {
+        const leg = {
+            player_name: document.getElementById('p_name').value,
+            metric: document.getElementById('metric').value,
+            target: parseFloat(document.getElementById('target').value),
+            direction: document.getElementById('direction').value
+        };
+
+        if (!leg.player_name || isNaN(leg.target)) return;
+
+        stagedLegs.push(leg);
+        renderStagedLegs();
+        
+        // Clear inputs for next leg
+        document.getElementById('p_name').value = '';
+        document.getElementById('target').value = '';
+        document.getElementById('p_name').focus();
+    }
+
+    function renderStagedLegs() {
+        const list = document.getElementById('staged-list');
+        list.innerHTML = '';
+        stagedLegs.forEach((leg, index) => {
+            list.innerHTML += `<li style="font-size: 0.9em; margin-bottom: 5px; color: var(--regal-gold);">
+                ${leg.player_name}: ${leg.direction} ${leg.target} ${leg.metric}
+            </li>`;
+        });
+        document.getElementById('save-slip-btn').style.display = stagedLegs.length > 0 ? 'block' : 'none';
+    }
+
+    async function submitFullSlip() {
+        const payload = { legs: stagedLegs };
+        const res = await fetch('add_slip.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+            stagedLegs = [];
+            location.reload();
+        }
+    }
+
+    // Include your existing closeModal(), openModal(), smartSync(), and renderDashboard() functions...
     const mySlips = <?php echo json_encode($slips); ?>;
 
     // --- MODAL CONTROLS ---
