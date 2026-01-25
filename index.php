@@ -172,7 +172,20 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
         mySlips.forEach(slip => {
             const card = document.createElement('div');
             card.className = 'slip-card';
-            let html = `<div class="slip-header">SLIP ID: ${slip.slip_id}</div>`;
+            
+            // Build the Financial Header if data exists
+            let metaHtml = '';
+            if (slip.odds || slip.wager || slip.payout) {
+                metaHtml = `<div class="slip-meta" style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.85em; color: var(--text-muted); border-bottom: 1px solid #222; padding-bottom: 8px;">`;
+                if (slip.odds) metaHtml += `<span>ODDS: <b style="color:var(--regal-gold)">${slip.odds}</b></span>`;
+                if (slip.wager) metaHtml += `<span>WAGER: <b>$${slip.wager}</b></span>`;
+                if (slip.payout) metaHtml += `<span>PAYOUT: <b style="color:var(--win-green)">$${slip.payout}</b></span>`;
+                metaHtml += `</div>`;
+            }
+
+            let html = `<div class="slip-header" style="margin-bottom: 5px;">SLIP ID: ${slip.slip_id}</div>`;
+            html += metaHtml;
+
             slip.legs.forEach(leg => {
                 const stats = liveData[leg.player_name] || {};
                 let current = 0, isWin = false, displayStat = 0;
@@ -180,12 +193,8 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
                 if (leg.metric === 'moneyline') {
                     const score = stats.score || 0;
                     const oppScore = stats.opponent_score || 0;
-                    
-                    // Calculate the Delta (e.g., 7 - 10 = -3)
                     displayStat = score - oppScore;
                     isWin = score > oppScore;
-                    
-                    // Format for display (optional: add '+' for positive numbers)
                     current = (displayStat > 0 ? '+' : '') + displayStat;
                 } else {
                     current = stats[leg.metric] || 0;
