@@ -3,7 +3,7 @@
     "slip_id": "SGP-0092",
     "created_at": "2026-01-25 15:38:00",
     "odds": "+857",
-    "wager": null,
+    "wager": 15,
     "payout": null,
     "legs": [
       { "player_name": "Courtland Sutton", "metric": "receptions", "target": 3, "direction": "over" },
@@ -16,7 +16,7 @@
     "slip_id": "SGP-9541",
     "created_at": "2026-01-25 15:38:00",
     "odds": "+11034",
-    "wager": null,
+    "wager": 10,
     "payout": null,
     "legs": [
       { "player_name": "RJ Harvey", "metric": "total_tds", "target": 0.5, "direction": "over" },
