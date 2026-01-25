@@ -89,8 +89,8 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
 
         .status-ribbon {
             position: absolute;
-            top: 10px;
-            right: -8px;
+            top: 15px;
+            right: -15px;
             transform: rotate(45deg);
             width: 70px;
             text-align: center;
@@ -238,7 +238,7 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
     }
 
     smartSync();
-    //setInterval(smartSync, 5000); 
+    setInterval(smartSync, 5000); 
 </script>
 </body>
 </html>
