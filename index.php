@@ -13,7 +13,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'sync') {
     $last_update = file_exists($stats_file) ? filemtime($stats_file) : 0;
     $seconds_since = time() - $last_update;
 
-    // Throttle: Only run heavy crawler if data is > 60s old
+    // Throttle: Only run crawler if data is > 60s old
     if ($seconds_since >= 60) {
         @include('cron_fetch.php'); 
         echo json_encode(['status' => 'updated', 'since' => 0]);
@@ -31,7 +31,7 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giga-Brains | Live Tracker</title>
+    <title>Giga-Brains | Dashboard</title>
     <style>
         :root {
             --regal-gold: #c5a059;
@@ -62,18 +62,21 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
         header { border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: baseline; }
         h1 { color: var(--regal-gold); letter-spacing: 2px; margin: 0; }
         
-        .dashboard { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+        .dashboard { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
         .slip-card { background: var(--card-bg); border: 1px solid #333; border-radius: 12px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
-        .slip-header { border-bottom: 1px solid #333; margin-bottom: 15px; padding-bottom: 10px; font-weight: bold; color: var(--regal-gold); }
+        .slip-header { border-bottom: 1px solid #222; margin-bottom: 5px; padding-bottom: 5px; font-weight: bold; color: var(--regal-gold); display: flex; justify-content: space-between; align-items: center;}
         
+        /* Leg Content */
         .leg { margin-bottom: 10px; padding: 12px; border-radius: 8px; background: #222; border-left: 4px solid #444; }
         .leg.winning { border-left-color: var(--win-green); background: rgba(46, 204, 113, 0.05); }
         .leg.losing { border-left-color: var(--loss-red); background: rgba(231, 76, 60, 0.05); }
-        .stat-line { display: flex; justify-content: space-between; margin-top: 5px; }
-        .current-stat { font-family: monospace; font-size: 1.2em; color: var(--regal-gold); }
+        .player-name { display: block; font-weight: bold; font-size: 1.1em; color: #fff; margin-bottom: 2px;}
+        .metric-label { font-size: 0.75em; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;}
+        .stat-line { display: flex; justify-content: space-between; margin-top: 8px; align-items: baseline; }
+        .current-stat { font-family: 'Courier New', monospace; font-size: 1.4em; color: var(--regal-gold); font-weight: bold;}
 
         /* Modal Styles */
-        #add-btn { position: fixed; bottom: 30px; right: 30px; background: var(--regal-gold); color: black; border: none; width: 60px; height: 60px; border-radius: 50%; font-size: 30px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.6); }
+        #add-btn { position: fixed; bottom: 30px; right: 30px; background: var(--regal-gold); color: black; border: none; width: 60px; height: 60px; border-radius: 50%; font-size: 30px; cursor: pointer; z-index: 50;}
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); }
         .modal-content { background: var(--card-bg); margin: 5% auto; padding: 30px; border: 1px solid var(--regal-gold); width: 450px; border-radius: 12px; }
         input, select, button.submit { width: 100%; padding: 12px; margin: 8px 0; background: #2a2a2a; border: 1px solid #444; color: white; border-radius: 6px; box-sizing: border-box; }
@@ -96,62 +99,27 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
 <button id="add-btn" onclick="openModal()">+</button>
 
 <div id="slipModal" class="modal">
-    <div class="modal-content">
-        <h2 style="color: var(--regal-gold); margin: 0 0 20px 0;">Build Parlay Slip</h2>
-        <div id="leg-builder" style="border: 1px dashed #444; padding: 15px; border-radius: 8px;">
-            <input type="text" id="p_name" placeholder="Player or Team Name">
-            <select id="metric">
-                <option value="pass_yds">Passing Yds</option>
-                <option value="rush_yds">Rushing Yds</option>
-                <option value="rec_yds">Receiving Yds</option>
-                <option value="receptions">Receptions</option>
-                <option value="moneyline">Moneyline (Win/Loss)</option>
-                <option value="total_points">Game Total Points</option>
-            </select>
-            <input type="number" step="0.5" id="target" placeholder="Target Line">
-            <select id="direction">
-                <option value="over">OVER / WIN</option>
-                <option value="under">UNDER / LOSS</option>
-            </select>
-            <button type="button" class="submit" style="background:#333; color:white;" onclick="addLegToStaging()">Add Leg</button>
-        </div>
-        <div id="staged-list" style="margin: 15px 0; max-height: 120px; overflow-y: auto;"></div>
-        <button type="button" id="save-slip-btn" class="submit" style="display:none;" onclick="submitFullSlip()">Commit Full Slip</button>
-        <button type="button" style="background:none; border:none; color:#666; cursor:pointer; width:100%; margin-top:10px;" onclick="closeModal()">Cancel</button>
     </div>
-</div>
 
 <script>
     const mySlips = <?php echo json_encode($slips); ?>;
-    let stagedLegs = [];
 
-    // --- 1. MODAL CONTROLS ---
-    function openModal() { document.getElementById('slipModal').style.display = 'block'; }
-    function closeModal() { document.getElementById('slipModal').style.display = 'none'; stagedLegs = []; document.getElementById('staged-list').innerHTML = ''; }
-    
-    function addLegToStaging() {
-        const leg = {
-            player_name: document.getElementById('p_name').value,
-            metric: document.getElementById('metric').value,
-            target: parseFloat(document.getElementById('target').value) || 0,
-            direction: document.getElementById('direction').value
-        };
-        if (!leg.player_name) return;
-        stagedLegs.push(leg);
-        document.getElementById('staged-list').innerHTML += `<div style="font-size:0.8em; margin-bottom:5px;">• ${leg.player_name}: ${leg.direction} ${leg.target} ${leg.metric}</div>`;
-        document.getElementById('save-slip-btn').style.display = 'block';
-        document.getElementById('p_name').value = ''; document.getElementById('target').value = '';
+    /**
+     * American Odds Payout Calculator
+     */
+    function calculatePayout(wager, odds) {
+        if (!wager || !odds) return null;
+        const numOdds = parseInt(odds.toString().replace('+', ''));
+        let profit = 0;
+
+        if (numOdds > 0) {
+            profit = wager * (numOdds / 100);
+        } else {
+            profit = wager * (100 / Math.abs(numOdds));
+        }
+        return (parseFloat(wager) + profit).toFixed(2);
     }
 
-    async function submitFullSlip() {
-        const res = await fetch('add_slip.php', {
-            method: 'POST', headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ legs: stagedLegs })
-        });
-        if (res.ok) location.reload();
-    }
-
-    // --- 2. LIVE DASHBOARD RENDERING ---
     function renderTicker(liveData) {
         const ticker = document.getElementById('game-ticker');
         ticker.innerHTML = '';
@@ -169,36 +137,38 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
     function renderDashboard(liveData) {
         const dashboard = document.getElementById('main-dashboard');
         dashboard.innerHTML = '';
+        
         mySlips.forEach(slip => {
             const card = document.createElement('div');
             card.className = 'slip-card';
             
-            // Build the Financial Header if data exists
+            // 1. Build Financial Header
             let metaHtml = '';
             if (slip.odds || slip.wager || slip.payout) {
-                metaHtml = `<div class="slip-meta" style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.85em; color: var(--text-muted); border-bottom: 1px solid #222; padding-bottom: 8px;">`;
+                const displayPayout = slip.payout || calculatePayout(slip.wager, slip.odds);
+                metaHtml = `<div class="slip-meta" style="display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 0.8em; color: #888; border-bottom: 1px solid #222; padding-bottom: 10px;">`;
                 if (slip.odds) metaHtml += `<span>ODDS: <b style="color:var(--regal-gold)">${slip.odds}</b></span>`;
                 if (slip.wager) metaHtml += `<span>WAGER: <b>$${slip.wager}</b></span>`;
-                if (slip.payout) metaHtml += `<span>PAYOUT: <b style="color:var(--win-green)">$${slip.payout}</b></span>`;
+                if (displayPayout) metaHtml += `<span>PAYOUT: <b style="color:var(--win-green)">$${displayPayout}</b></span>`;
                 metaHtml += `</div>`;
             }
 
-            let html = `<div class="slip-header" style="margin-bottom: 5px;">SLIP ID: ${slip.slip_id}</div>`;
+            let html = `<div class="slip-header"><span>SLIP: ${slip.slip_id}</span></div>`;
             html += metaHtml;
 
+            // 2. Build Legs
             slip.legs.forEach(leg => {
                 const stats = liveData[leg.player_name] || {};
-                let current = 0, isWin = false, displayStat = 0;
+                let currentLabel = 0, isWin = false;
                 
                 if (leg.metric === 'moneyline') {
-                    const score = stats.score || 0;
-                    const oppScore = stats.opponent_score || 0;
-                    displayStat = score - oppScore;
-                    isWin = score > oppScore;
-                    current = (displayStat > 0 ? '+' : '') + displayStat;
+                    const diff = (stats.score || 0) - (stats.opponent_score || 0);
+                    currentLabel = (diff > 0 ? '+' : '') + diff;
+                    isWin = (stats.score || 0) > (stats.opponent_score || 0);
                 } else {
-                    current = stats[leg.metric] || 0;
-                    isWin = (leg.direction === 'over') ? (current >= leg.target) : (current <= leg.target);
+                    const rawVal = stats[leg.metric] || 0;
+                    currentLabel = rawVal;
+                    isWin = (leg.direction === 'over') ? (rawVal >= leg.target) : (rawVal <= leg.target);
                 }
 
                 html += `
@@ -206,17 +176,17 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
                         <span class="player-name">${leg.player_name}</span>
                         <span class="metric-label">${leg.metric.replace('_',' ')}</span>
                         <div class="stat-line">
-                            <span>Target: ${leg.direction.toUpperCase()} ${leg.target}</span>
-                            <span class="current-stat">${current}</span>
+                            <span style="color: #666; font-size: 0.8em;">Target: ${leg.direction.toUpperCase()} ${leg.target}</span>
+                            <span class="current-stat">${currentLabel}</span>
                         </div>
                     </div>`;
             });
+
             card.innerHTML = html;
             dashboard.appendChild(card);
         });
     }
 
-    // --- 3. SMART SYNC ENGINE ---
     async function smartSync() {
         try {
             const syncRes = await fetch('index.php?action=sync');
@@ -226,12 +196,12 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
             
             renderDashboard(liveData);
             renderTicker(liveData);
-            document.getElementById('sync-status').innerText = (syncStatus.status === 'updated') ? "Status: Live Updated" : `Status: Cached (${syncStatus.since}s)`;
-        } catch (e) { document.getElementById('sync-status').innerText = "Status: Sync Error"; }
+            document.getElementById('sync-status').innerText = (syncStatus.status === 'updated') ? "Live" : `Cached (${syncStatus.since}s)`;
+        } catch (e) { document.getElementById('sync-status').innerText = "Offline"; }
     }
 
     smartSync();
-    setInterval(smartSync, 5000); // Attempt sync check every 5s
+    setInterval(smartSync, 5000); 
 </script>
 </body>
 </html>
