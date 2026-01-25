@@ -14,7 +14,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'sync') {
     $seconds_since = time() - $last_update;
 
     // Throttle: Only run crawler if data is > 60s old
-    if ($seconds_since >= 60) {
+    if ($seconds_since >= 20) {
         @include('cron_fetch.php'); 
         echo json_encode(['status' => 'updated', 'since' => 0]);
     } else {
