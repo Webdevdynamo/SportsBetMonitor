@@ -33,7 +33,7 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gridiron Giga-Brains | Dashboard</title>
+    <title>Degen NFL Bets | Dashboard</title>
     <style>
         :root {
             --regal-gold: #c5a059;
@@ -73,7 +73,7 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
 <body>
 
 <header>
-    <h1>Gridiron Giga-Brains</h1>
+    <h1>Degen NFL Bets</h1>
     <div id="sync-status">Syncing stats...</div>
 </header>
 
