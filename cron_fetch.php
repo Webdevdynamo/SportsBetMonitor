@@ -34,6 +34,7 @@ function fetchMsn($url) {
 $leagueData = fetchMsn($scoutUrl);
 $flatStats = [];
 $activeGameIds = [];
+print_r($leagueData);
 
 if (isset($leagueData['value'][0]['schedules'])) {
     foreach ($leagueData['value'][0]['schedules'] as $schedule) {
