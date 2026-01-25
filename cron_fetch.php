@@ -1,19 +1,16 @@
 <?php
 /**
  * cron_fetch.php - Multi-Game Crawler & Aggregator
- * PHP 7.4 - Operational Optimization
+ * PHP 7.4 - Validated MSN API Parameters
  */
 
 // 1. CONFIGURATION
-$apiKey    = "kO1dI4ptCTTylLkPL1ZTHYP8JhLKb8mRDoA5yotmNJ";
 $stats_dir = __DIR__ . '/data';
 $cache_file = $stats_dir . '/latest_stats.json';
 
-// League Scout URL
-$scoutUrl = "https://api.msn.com/sports/livearoundtheleague?apikey=$apiKey&version=1.0&cm=en-us&tzoffset=-7&it=web&id=Football_NFL&sport=Football";
-
-// Deep Stats Base URL
-$statsBaseUrl = "https://api.msn.com/sports/statistics";
+// Static Auth & Environment Params
+$apiKey = "kO1dI4ptCTTylLkPL1ZTHYP8JhLKb8mRDoA5yotmNJ";
+$userToken = "m-20DC418084A963F00D64576B85AD62D9";
 
 /**
  * Perform cURL with precise timeouts
@@ -22,20 +19,39 @@ function fetchMsn($url) {
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_TIMEOUT, 15);
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
-    curl_setopt($ch, CURLOPT_USERAGENT, 'GridironGigaBrains-Crawler/2.0');
+    curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)');
     $res = curl_exec($ch);
     $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
     return ($status === 200) ? json_decode($res, true) : null;
 }
 
-// 2. SCOUT: Find all games across the league
-print_r($scoutUrl);
+// 2. BUILD THE SCOUT URL (Including all required parameters)
+// We generate a fresh datetime and activityId to ensure the API provides live data
+$currentDateTime = date('Y-m-d\TH:i:s');
+$activityId = vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex(random_bytes(16)), 4));
+
+$scoutParams = [
+    'apikey'         => $apiKey,
+    'version'        => '1.0',
+    'cm'             => 'en-us',
+    'tzoffset'       => '-7',
+    'activityId'     => $activityId,
+    'it'             => 'web',
+    'user'           => $userToken,
+    'scn'            => 'ANON',
+    'datetime'       => $currentDateTime,
+    'id'             => 'Football_NFL',
+    'sport'          => 'Football',
+    'withleaguereco' => 'true'
+];
+
+$scoutUrl = "https://api.msn.com/sports/livearoundtheleague?" . http_build_query($scoutParams);
+
+// 3. EXECUTE SCOUT
 $leagueData = fetchMsn($scoutUrl);
 $flatStats = [];
 $activeGameIds = [];
-print_r($leagueData);
 
 if (isset($leagueData['value'][0]['schedules'])) {
     foreach ($leagueData['value'][0]['schedules'] as $schedule) {
@@ -43,47 +59,46 @@ if (isset($leagueData['value'][0]['schedules'])) {
             $gameId = $g['id'];
             $status = $g['gameState']['gameStatus'];
             
-            // Derive Team Names & Scores (For Moneyline and Specific Game Totals)
+            // Extract Team Scores
             $teamA = $g['participants'][0]['team']['shortName']['rawName'];
             $teamB = $g['participants'][1]['team']['shortName']['rawName'];
             $scoreA = (int)($g['participants'][0]['result']['score'] ?? 0);
             $scoreB = (int)($g['participants'][1]['result']['score'] ?? 0);
 
-            // Map Team Scores
+            // Map Team and Multi-Game Total keys
             $flatStats[$teamA] = ['score' => $scoreA, 'opponent_score' => $scoreB];
             $flatStats[$teamB] = ['score' => $scoreB, 'opponent_score' => $scoreA];
-
-            // Map Unique Game Totals (Format: Patriots@Broncos Total)
-            $totalKey = "{$teamA}@{$teamB} Total";
-            $flatStats[$totalKey] = [
+            $flatStats["{$teamA}@{$teamB} Total"] = [
                 'total_points' => $scoreA + $scoreB,
                 'clock' => $g['gameState']['gameClock']['minutes'] . ':' . $g['gameState']['gameClock']['seconds']
             ];
 
-            // If the game is InProgress or PreGame, queue it for Deep Player Stats
+            // Queue deep fetch for active games
             if ($status === 'InProgress' || $status === 'PreGame') {
-                $activeGameIds[] = [
-                    'id' => $gameId,
-                    'league' => $g['sportWithLeague']
-                ];
+                $activeGameIds[] = ['id' => $gameId, 'league' => $g['sportWithLeague']];
             }
         }
     }
 }
 
-// 3. FETCH: Get Deep Statistics for every active game
+// 4. FETCH DEEP STATS
 foreach ($activeGameIds as $game) {
-    $deepUrl = $statsBaseUrl . "?" . http_build_query([
+    $statParams = [
         'apikey'   => $apiKey,
         'version'  => '1.0',
         'cm'       => 'en-us',
+        'activityId' => $activityId,
+        'it'       => 'web',
+        'user'     => $userToken,
+        'scn'      => 'ANON',
         'ids'      => $game['id'],
         'type'     => 'Game',
         'scope'    => 'Playergame',
         'sport'    => 'Football',
         'leagueid' => $game['league']
-    ]);
+    ];
 
+    $deepUrl = "https://api.msn.com/sports/statistics?" . http_build_query($statParams);
     $deepData = fetchMsn($deepUrl);
 
     if (isset($deepData['value'][0]['statistics'])) {
@@ -108,10 +123,9 @@ foreach ($activeGameIds as $game) {
     }
 }
 
-// 4. SAVE: Atomic write to avoid JS reading empty file
+// 5. ATOMIC SAVE
 if (!empty($flatStats)) {
-    $tmp_file = $cache_file . '.tmp';
-    file_put_contents($tmp_file, json_encode($flatStats));
-    rename($tmp_file, $cache_file);
-    echo "Updated " . count($flatStats) . " items across " . count($activeGameIds) . " active games.";
+    $tmp = $cache_file . '.tmp';
+    file_put_contents($tmp, json_encode($flatStats));
+    rename($tmp, $cache_file);
 }
