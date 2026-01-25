@@ -31,6 +31,7 @@ function fetchMsn($url) {
 }
 
 // 2. SCOUT: Find all games across the league
+print_r($scoutUrl);
 $leagueData = fetchMsn($scoutUrl);
 $flatStats = [];
 $activeGameIds = [];
