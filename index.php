@@ -1,6 +1,6 @@
 <?php
 /**
- * Gridiron Giga-Brains: Operational Command Center
+ * Porreca’s Parlay Palace: Operational Command Center
  * PHP 7.4 + Vanilla JS (JSON-Only Architecture)
  */
 
@@ -13,7 +13,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'sync') {
     $last_update = file_exists($stats_file) ? filemtime($stats_file) : 0;
     $seconds_since = time() - $last_update;
 
-    // Throttle: Only run crawler if data is > 60s old
     if ($seconds_since >= 60) {
         @include('cron_fetch.php'); 
         echo json_encode(['status' => 'updated', 'since' => 0]);
@@ -23,7 +22,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'sync') {
     exit;
 }
 
-// --- 2. INITIAL LOAD ---
 $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), true) : [];
 ?>
 <!DOCTYPE html>
@@ -31,7 +29,7 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giga-Brains | Dashboard</title>
+    <title>Porreca’s Parlay Palace</title>
     <style>
         :root {
             --regal-gold: #c5a059;
@@ -43,7 +41,7 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
         }
         body { font-family: 'Segoe UI', sans-serif; background: var(--deep-black); color: #eee; margin: 0; padding: 0; }
         
-        /* Ticker Styles */
+        /* Score Ticker */
         .ticker-wrap { 
             background: #111; padding: 10px; display: flex; gap: 15px; overflow-x: auto; 
             border-bottom: 1px solid var(--regal-gold); scrollbar-width: none;
@@ -57,17 +55,19 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
         .winning-team { color: var(--win-green); font-weight: bold; }
         .game-meta { font-size: 0.7em; color: var(--regal-gold); text-transform: uppercase; border-top: 1px solid #333; margin-top: 5px; }
 
-        /* Dashboard Styles */
+        /* Dashboard & Slips */
         .container { padding: 20px; }
         header { border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: baseline; }
-        h1 { color: var(--regal-gold); letter-spacing: 2px; margin: 0; }
+        h1 { color: var(--regal-gold); letter-spacing: 2px; margin: 0; font-weight: bold; }
         
         .dashboard { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
-        .slip-card { background: var(--card-bg); border: 1px solid #333; border-radius: 12px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); transition: border 0.3s ease; }
+        .slip-card { background: var(--card-bg); border: 1px solid #333; border-radius: 12px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); position: relative; overflow: hidden; }
         
-        /* Finalized Slip States */
+        /* Finalized & Legend States */
         .slip-final-win { border: 2px solid var(--win-green) !important; box-shadow: 0 0 15px rgba(46, 204, 113, 0.2); }
         .slip-final-loss { border: 2px solid var(--loss-red) !important; box-shadow: 0 0 15px rgba(231, 76, 60, 0.2); }
+        .legend-bet { border: 2px solid var(--regal-gold) !important; animation: goldPulse 2s infinite; }
+        @keyframes goldPulse { 0% { box-shadow: 0 0 5px var(--regal-gold); } 50% { box-shadow: 0 0 20px var(--regal-gold); } 100% { box-shadow: 0 0 5px var(--regal-gold); } }
 
         .slip-header { border-bottom: 1px solid #222; margin-bottom: 5px; padding-bottom: 5px; font-weight: bold; color: var(--regal-gold); display: flex; justify-content: space-between; }
         
@@ -80,7 +80,6 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
         .stat-line { display: flex; justify-content: space-between; margin-top: 8px; align-items: baseline; }
         .current-stat { font-family: 'Courier New', monospace; font-size: 1.4em; color: var(--regal-gold); font-weight: bold;}
 
-        /* Modal Styles */
         #add-btn { position: fixed; bottom: 30px; right: 30px; background: var(--regal-gold); color: black; border: none; width: 60px; height: 60px; border-radius: 50%; font-size: 30px; cursor: pointer; z-index: 50;}
     </style>
 </head>
@@ -90,7 +89,7 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
 
 <div class="container">
     <header>
-        <h1>GRIDIRON GIGA-BRAINS</h1>
+        <h1>PORRECA’S PARLAY PALACE</h1>
         <div id="sync-status" style="font-size: 0.8em; color: var(--text-muted);">Initializing...</div>
     </header>
 
@@ -102,9 +101,6 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
 <script>
     const mySlips = <?php echo json_encode($slips); ?>;
 
-    /**
-     * American Odds Payout Calculator
-     */
     function calculatePayout(wager, odds) {
         if (!wager || !odds) return null;
         const numOdds = parseInt(odds.toString().replace('+', ''));
@@ -137,12 +133,10 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
             let slipWinning = true;
             let legsHtml = '';
 
-            // Process Legs & Determine Slip Status
             slip.legs.forEach(leg => {
                 const stats = liveData[leg.player_name] || {};
                 let currentLabel = 0, isWin = false;
                 
-                // Track if all games in the slip are finished
                 if ((stats.gameStatus || 'Upcoming') !== 'Final') allFinal = false;
 
                 if (leg.metric === 'moneyline') {
@@ -169,10 +163,14 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
             });
 
             const card = document.createElement('div');
-            let finalClass = (allFinal) ? (slipWinning ? 'slip-final-win' : 'slip-final-loss') : '';
-            card.className = `slip-card ${finalClass}`;
             
-            // Financial Meta Header
+            // Check for Legend Odds (+1000 or higher)
+            const numericOdds = parseInt((slip.odds || "").toString().replace('+', ''));
+            const isLegend = numericOdds >= 1000;
+
+            let finalClass = (allFinal) ? (slipWinning ? 'slip-final-win' : 'slip-final-loss') : '';
+            card.className = `slip-card ${finalClass} ${isLegend ? 'legend-bet' : ''}`;
+            
             let metaHtml = '';
             if (slip.odds || slip.wager || slip.payout) {
                 const displayPayout = slip.payout || calculatePayout(slip.wager, slip.odds);
