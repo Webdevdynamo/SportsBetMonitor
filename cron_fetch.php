@@ -48,10 +48,10 @@ $scoutParams = [
 
 $scoutUrl = "https://api.msn.com/sports/livearoundtheleague?" . http_build_query($scoutParams);
 
-print_r($scoutUrl);
 
 // 3. EXECUTE SCOUT
 $leagueData = fetchMsn($scoutUrl);
+print_r($leagueData);
 $flatStats = [];
 $activeGameIds = [];
 
