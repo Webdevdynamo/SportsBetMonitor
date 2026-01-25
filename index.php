@@ -175,17 +175,23 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
             let html = `<div class="slip-header">SLIP ID: ${slip.slip_id}</div>`;
             slip.legs.forEach(leg => {
                 const stats = liveData[leg.player_name] || {};
-                let current = 0, isWin = false;
+                let current = 0, isWin = false, displayStat = 0;
                 
                 if (leg.metric === 'moneyline') {
-                    current = stats.score || 0;
-                    isWin = current > (stats.opponent_score || 0);
+                    const score = stats.score || 0;
+                    const oppScore = stats.opponent_score || 0;
+                    
+                    // Calculate the Delta (e.g., 7 - 10 = -3)
+                    displayStat = score - oppScore;
+                    isWin = score > oppScore;
+                    
+                    // Format for display (optional: add '+' for positive numbers)
+                    current = (displayStat > 0 ? '+' : '') + displayStat;
                 } else {
                     current = stats[leg.metric] || 0;
                     isWin = (leg.direction === 'over') ? (current >= leg.target) : (current <= leg.target);
                 }
 
-                // SWAPPED: Player Name now precedes the Metric label
                 html += `
                     <div class="leg ${isWin ? 'winning' : 'losing'}">
                         <span class="player-name">${leg.player_name}</span>
