@@ -238,7 +238,7 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
     }
 
     smartSync();
-    setInterval(smartSync, 60000); 
+    //setInterval(smartSync, 60000); 
 </script>
 </body>
 </html>
