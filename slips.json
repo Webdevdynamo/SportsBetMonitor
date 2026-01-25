@@ -1,0 +1,13 @@
+[
+  {
+    "slip_id": "001",
+    "legs": [
+      {
+        "player_name": "RJ Harvey",
+        "metric": "rush_yds",
+        "target": 75.5,
+        "direction": "over"
+      }
+    ]
+  }
+]
