@@ -237,8 +237,8 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
         } catch (e) { document.getElementById('sync-status').innerText = "Offline"; }
     }
 
-    // smartSync();
-    // setInterval(smartSync, 60000); 
+    smartSync();
+    //setInterval(smartSync, 5000); 
 </script>
 </body>
 </html>
