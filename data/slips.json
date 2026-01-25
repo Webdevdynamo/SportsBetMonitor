@@ -30,7 +30,7 @@
     "slip_id": "SGP-PLUS-1997",
     "created_at": "2026-01-25 15:38:00",
     "odds": "+453",
-    "wager": null,
+    "wager": 10,
     "payout": null,
     "legs": [
       { "player_name": "Patriots@Broncos Total", "metric": "total_points", "target": 44.5, "direction": "under" },
