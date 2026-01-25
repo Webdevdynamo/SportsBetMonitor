@@ -82,25 +82,30 @@ if (isset($leagueData['value'][0]['schedules'])) {
     }
 }
 
-// 4. FETCH DEEP STATS
+// 4. FETCH DEEP STATS (Corrected Logic)
 foreach ($activeGameIds as $game) {
+    // USE '=' TO RESET THE VARIABLE ON EVERY LOOP
+    // DO NOT USE '.=' OR YOU WILL CONCATENATE THE LINKS
     $statParams = [
-        'apikey'   => $apiKey,
-        'version'  => '1.0',
-        'cm'       => 'en-us',
-        'activityId' => $activityId,
-        'it'       => 'web',
-        'user'     => $userToken,
-        'scn'      => 'ANON',
-        'ids'      => $game['id'],
-        'type'     => 'Game',
-        'scope'    => 'Playergame',
-        'sport'    => 'Football',
-        'leagueid' => $game['league']
+        'apikey'     => $apiKey,
+        'version'    => '1.0',
+        'cm'         => 'en-us',
+        'activityId' => vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex(random_bytes(16)), 4)),
+        'it'         => 'web',
+        'user'       => $userToken,
+        'scn'        => 'ANON',
+        'ids'        => $game['id'], // Dynamically pulled from the Scout
+        'type'       => 'Game',
+        'scope'      => 'Playergame',
+        'sport'      => 'Football',
+        'leagueid'   => $game['league']
     ];
 
     $deepUrl = "https://api.msn.com/sports/statistics?" . http_build_query($statParams);
-    print_r($deepUrl);
+
+    // Debugging point: Log it to ensure it's clean
+    print_r("Fetching URL: " . $deepUrl);
+
     $deepData = fetchMsn($deepUrl);
 
     if (isset($deepData['value'][0]['statistics'])) {
