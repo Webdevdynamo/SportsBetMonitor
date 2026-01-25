@@ -90,7 +90,7 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
         .status-ribbon {
             position: absolute;
             top: 10px;
-            right: -10px;
+            right: -8px;
             transform: rotate(45deg);
             width: 70px;
             text-align: center;
