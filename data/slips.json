@@ -1,13 +1,11 @@
 [
   {
     "slip_id": "001",
-    "legs": [
-      {
-        "player_name": "RJ Harvey",
-        "metric": "rush_yds",
-        "target": 75.5,
-        "direction": "over"
-      }
-    ]
+  "legs": [
+    { "player_name": "Courtland Sutton", "metric": "receptions", "target": 3, "direction": "over" },
+    { "player_name": "Rhamondre Stevenson", "metric": "rush_yds", "target": 60, "direction": "over" },
+    { "player_name": "Game Total", "metric": "total_points", "target": 40.5, "direction": "under" },
+    { "player_name": "Hunter Henry", "metric": "rec_yds", "target": 25, "direction": "over" }
+  ]
   }
 ]
