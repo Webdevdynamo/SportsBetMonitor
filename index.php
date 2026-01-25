@@ -134,6 +134,55 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
 
 <script>
     const mySlips = <?php echo json_encode($slips); ?>;
+    let stagedLegs = [];
+
+    // --- 1. MODAL LOGIC ---
+    function openModal() { document.getElementById('slipModal').style.display = 'block'; }
+    function closeModal() { document.getElementById('slipModal').style.display = 'none'; stagedLegs = []; document.getElementById('staged-list').innerHTML = ''; }
+    
+    function toggleLegInputs() {
+        const type = document.getElementById('leg_type').value;
+        document.getElementById('player_input').style.display = (type === 'player') ? 'block' : 'none';
+        document.getElementById('ml_input').style.display = (type === 'ml') ? 'block' : 'none';
+        document.getElementById('total_input').style.display = (type === 'total') ? 'block' : 'none';
+        document.getElementById('line_inputs').style.display = (type === 'ml') ? 'none' : 'block';
+    }
+
+    function addLegToStaging() {
+        const type = document.getElementById('leg_type').value;
+        let leg = { direction: document.getElementById('direction').value };
+
+        if (type === 'player') {
+            leg.player_name = document.getElementById('p_name').value;
+            leg.metric = document.getElementById('metric').value;
+            leg.target = parseFloat(document.getElementById('target').value);
+        } else if (type === 'ml') {
+            leg.player_name = document.getElementById('ml_team_select').value;
+            leg.metric = 'moneyline';
+            leg.target = 0; leg.direction = 'over';
+        } else if (type === 'total') {
+            leg.player_name = document.getElementById('total_game_select').value;
+            leg.metric = 'total_points';
+            leg.target = parseFloat(document.getElementById('target').value);
+        }
+
+        if (leg.player_name) {
+            stagedLegs.push(leg);
+            document.getElementById('staged-list').innerHTML += `<div>• ${leg.player_name} (${leg.metric})</div>`;
+            document.getElementById('save-slip-btn').style.display = 'block';
+        }
+    }
+
+    async function submitFullSlip() {
+        const payload = {
+            slip_id: "SGP-" + Math.random().toString(36).substr(2, 5).toUpperCase(),
+            odds: document.getElementById('slip_odds').value,
+            wager: parseFloat(document.getElementById('slip_wager').value),
+            legs: stagedLegs
+        };
+        const res = await fetch('add_slip.php', { method: 'POST', body: JSON.stringify(payload) });
+        if (res.ok) location.reload();
+    }
 
     function calculatePayout(wager, odds) {
         if (!wager || !odds) return null;
