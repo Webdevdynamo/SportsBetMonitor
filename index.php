@@ -63,24 +63,25 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
         h1 { color: var(--regal-gold); letter-spacing: 2px; margin: 0; }
         
         .dashboard { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
-        .slip-card { background: var(--card-bg); border: 1px solid #333; border-radius: 12px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
-        .slip-header { border-bottom: 1px solid #222; margin-bottom: 5px; padding-bottom: 5px; font-weight: bold; color: var(--regal-gold); display: flex; justify-content: space-between; align-items: center;}
+        .slip-card { background: var(--card-bg); border: 1px solid #333; border-radius: 12px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); transition: border 0.3s ease; }
+        
+        /* Finalized Slip States */
+        .slip-final-win { border: 2px solid var(--win-green) !important; box-shadow: 0 0 15px rgba(46, 204, 113, 0.2); }
+        .slip-final-loss { border: 2px solid var(--loss-red) !important; box-shadow: 0 0 15px rgba(231, 76, 60, 0.2); }
+
+        .slip-header { border-bottom: 1px solid #222; margin-bottom: 5px; padding-bottom: 5px; font-weight: bold; color: var(--regal-gold); display: flex; justify-content: space-between; }
         
         /* Leg Content */
         .leg { margin-bottom: 10px; padding: 12px; border-radius: 8px; background: #222; border-left: 4px solid #444; }
-        .leg.winning { border-left-color: var(--win-green); background: rgba(46, 204, 113, 0.05); }
-        .leg.losing { border-left-color: var(--loss-red); background: rgba(231, 76, 60, 0.05); }
-        .player-name { display: block; font-weight: bold; font-size: 1.1em; color: #fff; margin-bottom: 2px;}
-        .metric-label { font-size: 0.75em; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;}
+        .leg.winning { border-left-color: var(--win-green); }
+        .leg.losing { border-left-color: var(--loss-red); }
+        .player-name { display: block; font-weight: bold; font-size: 1.1em; color: #fff; }
+        .metric-label { font-size: 0.75em; color: var(--text-muted); text-transform: uppercase; }
         .stat-line { display: flex; justify-content: space-between; margin-top: 8px; align-items: baseline; }
         .current-stat { font-family: 'Courier New', monospace; font-size: 1.4em; color: var(--regal-gold); font-weight: bold;}
 
         /* Modal Styles */
         #add-btn { position: fixed; bottom: 30px; right: 30px; background: var(--regal-gold); color: black; border: none; width: 60px; height: 60px; border-radius: 50%; font-size: 30px; cursor: pointer; z-index: 50;}
-        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); }
-        .modal-content { background: var(--card-bg); margin: 5% auto; padding: 30px; border: 1px solid var(--regal-gold); width: 450px; border-radius: 12px; }
-        input, select, button.submit { width: 100%; padding: 12px; margin: 8px 0; background: #2a2a2a; border: 1px solid #444; color: white; border-radius: 6px; box-sizing: border-box; }
-        button.submit { background: var(--regal-gold); color: black; font-weight: bold; cursor: pointer; border: none; }
     </style>
 </head>
 <body>
@@ -98,9 +99,6 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
 
 <button id="add-btn" onclick="openModal()">+</button>
 
-<div id="slipModal" class="modal">
-    </div>
-
 <script>
     const mySlips = <?php echo json_encode($slips); ?>;
 
@@ -111,12 +109,8 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
         if (!wager || !odds) return null;
         const numOdds = parseInt(odds.toString().replace('+', ''));
         let profit = 0;
-
-        if (numOdds > 0) {
-            profit = wager * (numOdds / 100);
-        } else {
-            profit = wager * (100 / Math.abs(numOdds));
-        }
+        if (numOdds > 0) { profit = wager * (numOdds / 100); } 
+        else { profit = wager * (100 / Math.abs(numOdds)); }
         return (parseFloat(wager) + profit).toFixed(2);
     }
 
@@ -139,28 +133,18 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
         dashboard.innerHTML = '';
         
         mySlips.forEach(slip => {
-            const card = document.createElement('div');
-            card.className = 'slip-card';
-            
-            // 1. Build Financial Header
-            let metaHtml = '';
-            if (slip.odds || slip.wager || slip.payout) {
-                const displayPayout = slip.payout || calculatePayout(slip.wager, slip.odds);
-                metaHtml = `<div class="slip-meta" style="display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 0.8em; color: #888; border-bottom: 1px solid #222; padding-bottom: 10px;">`;
-                if (slip.odds) metaHtml += `<span>ODDS: <b style="color:var(--regal-gold)">${slip.odds}</b></span>`;
-                if (slip.wager) metaHtml += `<span>WAGER: <b>$${slip.wager}</b></span>`;
-                if (displayPayout) metaHtml += `<span>PAYOUT: <b style="color:var(--win-green)">$${displayPayout}</b></span>`;
-                metaHtml += `</div>`;
-            }
+            let allFinal = true;
+            let slipWinning = true;
+            let legsHtml = '';
 
-            let html = `<div class="slip-header"><span>SLIP: ${slip.slip_id}</span></div>`;
-            html += metaHtml;
-
-            // 2. Build Legs
+            // Process Legs & Determine Slip Status
             slip.legs.forEach(leg => {
                 const stats = liveData[leg.player_name] || {};
                 let currentLabel = 0, isWin = false;
                 
+                // Track if all games in the slip are finished
+                if ((stats.gameStatus || 'Upcoming') !== 'Final') allFinal = false;
+
                 if (leg.metric === 'moneyline') {
                     const diff = (stats.score || 0) - (stats.opponent_score || 0);
                     currentLabel = (diff > 0 ? '+' : '') + diff;
@@ -171,7 +155,9 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
                     isWin = (leg.direction === 'over') ? (rawVal >= leg.target) : (rawVal <= leg.target);
                 }
 
-                html += `
+                if (!isWin) slipWinning = false;
+
+                legsHtml += `
                     <div class="leg ${isWin ? 'winning' : 'losing'}">
                         <span class="player-name">${leg.player_name}</span>
                         <span class="metric-label">${leg.metric.replace('_',' ')}</span>
@@ -182,7 +168,22 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
                     </div>`;
             });
 
-            card.innerHTML = html;
+            const card = document.createElement('div');
+            let finalClass = (allFinal) ? (slipWinning ? 'slip-final-win' : 'slip-final-loss') : '';
+            card.className = `slip-card ${finalClass}`;
+            
+            // Financial Meta Header
+            let metaHtml = '';
+            if (slip.odds || slip.wager || slip.payout) {
+                const displayPayout = slip.payout || calculatePayout(slip.wager, slip.odds);
+                metaHtml = `<div class="slip-meta" style="display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 0.8em; color: #888; border-bottom: 1px solid #222; padding-bottom: 10px;">`;
+                if (slip.odds) metaHtml += `<span>ODDS: <b style="color:var(--regal-gold)">${slip.odds}</b></span>`;
+                if (slip.wager) metaHtml += `<span>WAGER: <b>$${slip.wager}</b></span>`;
+                if (displayPayout) metaHtml += `<span>PAYOUT: <b style="color:var(--win-green)">$${displayPayout}</b></span>`;
+                metaHtml += `</div>`;
+            }
+
+            card.innerHTML = `<div class="slip-header"><span>SLIP: ${slip.slip_id}</span></div>` + metaHtml + legsHtml;
             dashboard.appendChild(card);
         });
     }
