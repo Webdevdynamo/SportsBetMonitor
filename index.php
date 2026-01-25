@@ -61,18 +61,52 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
         h1 { color: var(--regal-gold); letter-spacing: 2px; margin: 0; font-weight: bold; }
         
         .dashboard { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
-        .slip-card { background: var(--card-bg); border: 1px solid #333; border-radius: 12px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); position: relative; overflow: hidden; }
+        .slip-card { background: var(--card-bg); border: 1px solid #333; border-radius: 12px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); position: relative; overflow: hidden; transition: background 0.4s ease; }
         
-        /* Finalized & Legend States */
-        .slip-final-win { border: 2px solid var(--win-green) !important; box-shadow: 0 0 15px rgba(46, 204, 113, 0.2); }
-        .slip-final-loss { border: 2px solid var(--loss-red) !important; box-shadow: 0 0 15px rgba(231, 76, 60, 0.2); }
+        /* Legend Bet Animation */
         .legend-bet { border: 2px solid var(--regal-gold) !important; animation: goldPulse 2s infinite; }
         @keyframes goldPulse { 0% { box-shadow: 0 0 5px var(--regal-gold); } 50% { box-shadow: 0 0 20px var(--regal-gold); } 100% { box-shadow: 0 0 5px var(--regal-gold); } }
+
+        /* Finalized Backgrounds */
+        .slip-final-win { background: linear-gradient(145deg, #1a1a1a, #0b2e18) !important; }
+        .slip-final-loss { background: linear-gradient(145deg, #1a1a1a, #3b1414) !important; }
+
+        /* Corner Ribbon System */
+        .slip-card::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 0 60px 60px 0;
+            border-color: transparent transparent transparent transparent;
+            z-index: 10;
+        }
+        .slip-final-win::after { border-color: transparent var(--win-green) transparent transparent; }
+        .slip-final-loss::after { border-color: transparent var(--loss-red) transparent transparent; }
+
+        .status-ribbon {
+            position: absolute;
+            top: 10px;
+            right: -10px;
+            transform: rotate(45deg);
+            width: 70px;
+            text-align: center;
+            font-size: 0.65em;
+            font-weight: bold;
+            color: #fff;
+            z-index: 11;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            pointer-events: none;
+        }
 
         .slip-header { border-bottom: 1px solid #222; margin-bottom: 5px; padding-bottom: 5px; font-weight: bold; color: var(--regal-gold); display: flex; justify-content: space-between; }
         
         /* Leg Content */
-        .leg { margin-bottom: 10px; padding: 12px; border-radius: 8px; background: #222; border-left: 4px solid #444; }
+        .leg { margin-bottom: 10px; padding: 12px; border-radius: 8px; background: #222; border-left: 4px solid #444; position: relative; z-index: 2; }
         .leg.winning { border-left-color: var(--win-green); }
         .leg.losing { border-left-color: var(--loss-red); }
         .player-name { display: block; font-weight: bold; font-size: 1.1em; color: #fff; }
@@ -137,6 +171,7 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
                 const stats = liveData[leg.player_name] || {};
                 let currentLabel = 0, isWin = false;
                 
+                // Track if all games in the slip are finished
                 if ((stats.gameStatus || 'Upcoming') !== 'Final') allFinal = false;
 
                 if (leg.metric === 'moneyline') {
@@ -171,17 +206,20 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
             let finalClass = (allFinal) ? (slipWinning ? 'slip-final-win' : 'slip-final-loss') : '';
             card.className = `slip-card ${finalClass} ${isLegend ? 'legend-bet' : ''}`;
             
+            // Ribbon Text
+            let ribbonHtml = allFinal ? `<div class="status-ribbon">${slipWinning ? 'Win' : 'Loss'}</div>` : '';
+
             let metaHtml = '';
             if (slip.odds || slip.wager || slip.payout) {
                 const displayPayout = slip.payout || calculatePayout(slip.wager, slip.odds);
-                metaHtml = `<div class="slip-meta" style="display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 0.8em; color: #888; border-bottom: 1px solid #222; padding-bottom: 10px;">`;
+                metaHtml = `<div class="slip-meta" style="display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 0.8em; color: #888; border-bottom: 1px solid #222; padding-bottom: 10px; position: relative; z-index: 2;">`;
                 if (slip.odds) metaHtml += `<span>ODDS: <b style="color:var(--regal-gold)">${slip.odds}</b></span>`;
                 if (slip.wager) metaHtml += `<span>WAGER: <b>$${slip.wager}</b></span>`;
                 if (displayPayout) metaHtml += `<span>PAYOUT: <b style="color:var(--win-green)">$${displayPayout}</b></span>`;
                 metaHtml += `</div>`;
             }
 
-            card.innerHTML = `<div class="slip-header"><span>SLIP: ${slip.slip_id}</span></div>` + metaHtml + legsHtml;
+            card.innerHTML = ribbonHtml + `<div class="slip-header" style="position: relative; z-index: 2;"><span>SLIP: ${slip.slip_id}</span></div>` + metaHtml + legsHtml;
             dashboard.appendChild(card);
         });
     }
