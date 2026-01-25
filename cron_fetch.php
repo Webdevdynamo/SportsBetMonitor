@@ -1,7 +1,7 @@
 <?php
 /**
  * Gridiron Giga-Brains: Multi-Game All-Day Crawler
- * PHP 7.4 - Operational Optimization with gameStatus Tracking
+ * PHP 7.4 - Operational Optimization with gameStatus & D/ST Tracking
  */
 
 // 1. CONFIGURATION & SESSION SETUP
@@ -49,7 +49,7 @@ if (isset($leagueData['value'][0]['schedules'])) {
                 $scoreA = (int)($g['participants'][0]['result']['score'] ?? 0);
                 $scoreB = (int)($g['participants'][1]['result']['score'] ?? 0);
 
-                // TRACK STATUS: Store gameStatus in team and total objects
+                // Store gameStatus in team and total objects
                 $flatStats[$teamA] = ['score' => $scoreA, 'opponent_score' => $scoreB, 'gameStatus' => $status];
                 $flatStats[$teamB] = ['score' => $scoreB, 'opponent_score' => $scoreA, 'gameStatus' => $status];
                 
@@ -71,7 +71,7 @@ if (isset($leagueData['value'][0]['schedules'])) {
     }
 }
 
-// 3. STAGE 2: DEEP STATISTICS
+// 3. STAGE 2: DEEP STATISTICS (PLAYER + D/ST)
 foreach ($gamesToFetch as $game) {
     $deepUrl = "https://api.msn.com/sports/statistics?" . http_build_query([
         'apikey' => $apiKey, 'version' => '1.0', 'cm' => 'en-us', 'activityId' => $activityId,
@@ -83,12 +83,30 @@ foreach ($gamesToFetch as $game) {
 
     if (isset($deepData['value'][0]['statistics'])) {
         foreach ($deepData['value'][0]['statistics'] as $statEntry) {
+            
+            // --- D/ST TOUCHDOWN LOGIC ---
+            if (isset($statEntry['teamStatistics'])) {
+                foreach ($statEntry['teamStatistics'] as $tStat) {
+                    $teamRaw = $tStat['team']['shortName']['rawName'];
+                    $dstKey = $teamRaw . " D/ST";
+                    // Summing Interception and Fumble recovery TDs
+                    $defTDs = ($tStat['defensiveStatistics']['interceptionTouchdowns'] ?? 0) + 
+                             ($tStat['defensiveStatistics']['fumbleRecoveryTouchdowns'] ?? 0);
+
+                    $flatStats[$dstKey] = [
+                        'total_tds' => $defTDs,
+                        'gameStatus' => $game['status']
+                    ];
+                }
+            }
+
+            // --- PLAYER STATISTICS ---
             foreach ($statEntry['teamPlayerStatistics'] as $team) {
                 foreach ($team['playerStatistics'] as $p) {
                     $name = $p['player']['name']['rawName'] ?? null;
                     if ($name) {
                         $flatStats[$name] = [
-                            'gameStatus' => $game['status'], // TRACK STATUS: Map game status to individual player
+                            'gameStatus' => $game['status'], 
                             'pass_yds' => $p['passingStatistics']['yards'] ?? 0,
                             'rush_yds' => $p['rushingStatistics']['yards'] ?? 0,
                             'rec_yds' => $p['receivingStatistics']['yards'] ?? 0,
