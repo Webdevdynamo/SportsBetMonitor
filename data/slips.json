@@ -1,19 +1,49 @@
 [
-  {
-    "slip_id": "1",
-  "legs": [
-    { "player_name": "Courtland Sutton", "metric": "receptions", "target": 3, "direction": "over" },
-    { "player_name": "Rhamondre Stevenson", "metric": "rush_yds", "target": 60, "direction": "over" },
-    { "player_name": "Game Total", "metric": "total_points", "target": 40.5, "direction": "under" },
-    { "player_name": "Hunter Henry", "metric": "rec_yds", "target": 25, "direction": "over" }
-  ]
-  },{
-    "slip_id": "2",
-  "legs": [
-    { "player_name": "Courtland Sutton", "metric": "receptions", "target": 3, "direction": "over" },
-    { "player_name": "Rhamondre Stevenson", "metric": "rush_yds", "target": 60, "direction": "over" },
-    { "player_name": "Game Total", "metric": "total_points", "target": 40.5, "direction": "under" },
-    { "player_name": "Hunter Henry", "metric": "rec_yds", "target": 25, "direction": "over" }
-  ]
-  }
+    {
+        "slip_id": "1",
+        "legs": [
+            {
+                "player_name": "Courtland Sutton",
+                "metric": "receptions",
+                "target": 3,
+                "direction": "over"
+            },
+            {
+                "player_name": "Rhamondre Stevenson",
+                "metric": "rush_yds",
+                "target": 60,
+                "direction": "over"
+            },
+            {
+                "player_name": "Game Total",
+                "metric": "total_points",
+                "target": 40.5,
+                "direction": "under"
+            },
+            {
+                "player_name": "Hunter Henry",
+                "metric": "rec_yds",
+                "target": 25,
+                "direction": "over"
+            }
+        ]
+    },
+    {
+        "legs": [
+            {
+                "player_name": "RJ Harvey",
+                "metric": "total_tds",
+                "target": 0.5,
+                "direction": "over"
+            },
+            {
+                "player_name": "Courtland Sutton",
+                "metric": "total_tds",
+                "target": 0.5,
+                "direction": "over"
+            }
+        ],
+        "slip_id": "74A67",
+        "created_at": "2026-01-25 15:21:41"
+    }
 ]
