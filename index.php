@@ -132,12 +132,58 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
 
 <button id="add-btn" onclick="openModal()">+</button>
 
+<div id="slipModal" class="modal">
+    <div class="modal-content">
+        <h2 style="color: var(--regal-gold); margin-top: 0;">Build Parlay Slip</h2>
+        
+        <div id="leg-builder" style="background: #111; padding: 15px; border-radius: 8px; border: 1px dashed #444;">
+            <select id="leg_type" onchange="toggleLegInputs()">
+                <option value="player">Player Prop</option>
+                <option value="ml">Moneyline</option>
+                <option value="total">Game Total</option>
+            </select>
+
+            <div id="player_input">
+                <input type="text" id="p_name" placeholder="Player Name">
+                <select id="metric">
+                    <option value="pass_yds">Passing Yds</option>
+                    <option value="rush_yds">Rushing Yds</option>
+                    <option value="rec_yds">Receiving Yds</option>
+                    <option value="receptions">Receptions</option>
+                </select>
+            </div>
+
+            <div id="ml_input" style="display:none;"><select id="ml_team_select"></select></div>
+            <div id="total_input" style="display:none;"><select id="total_game_select"></select></div>
+
+            <div id="line_inputs">
+                <input type="number" step="0.5" id="target" placeholder="Line / Target">
+                <select id="direction">
+                    <option value="over">OVER / WIN</option>
+                    <option value="under">UNDER</option>
+                </select>
+            </div>
+
+            <input type="text" id="slip_odds" placeholder="Odds (e.g. +1000)">
+            <input type="number" step="0.01" id="slip_wager" placeholder="Wager Amount">
+
+            <button type="button" class="submit" onclick="addLegToStaging()">+ Add Leg</button>
+        </div>
+
+        <div id="staged-list" style="margin-top:20px; color: var(--regal-gold); font-size: 0.85em;"></div>
+        <button type="button" id="save-slip-btn" class="submit" style="display:none;" onclick="submitFullSlip()">Commit Full Slip</button>
+        <button type="button" style="background:none; border:none; color:#666; cursor:pointer; width:100%; margin-top:10px;" onclick="closeModal()">Cancel</button>
+    </div>
+</div>
+
 <script>
     const mySlips = <?php echo json_encode($slips); ?>;
     let stagedLegs = [];
 
     // --- 1. MODAL LOGIC ---
-    function openModal() { document.getElementById('slipModal').style.display = 'block'; }
+    function openModal() { 
+        document.getElementById('slipModal').style.display = 'block'; 
+    }
     function closeModal() { document.getElementById('slipModal').style.display = 'none'; stagedLegs = []; document.getElementById('staged-list').innerHTML = ''; }
     
     function toggleLegInputs() {
