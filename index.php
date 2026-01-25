@@ -176,6 +176,7 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
             slip.legs.forEach(leg => {
                 const stats = liveData[leg.player_name] || {};
                 let current = 0, isWin = false;
+                
                 if (leg.metric === 'moneyline') {
                     current = stats.score || 0;
                     isWin = current > (stats.opponent_score || 0);
@@ -183,10 +184,12 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
                     current = stats[leg.metric] || 0;
                     isWin = (leg.direction === 'over') ? (current >= leg.target) : (current <= leg.target);
                 }
+
+                // SWAPPED: Player Name now precedes the Metric label
                 html += `
                     <div class="leg ${isWin ? 'winning' : 'losing'}">
-                        <span class="metric-label">${leg.metric.replace('_',' ')}</span>
                         <span class="player-name">${leg.player_name}</span>
+                        <span class="metric-label">${leg.metric.replace('_',' ')}</span>
                         <div class="stat-line">
                             <span>Target: ${leg.direction.toUpperCase()} ${leg.target}</span>
                             <span class="current-stat">${current}</span>
