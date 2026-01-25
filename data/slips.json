@@ -41,6 +41,12 @@
                 "metric": "total_tds",
                 "target": 0.5,
                 "direction": "over"
+            },
+            {
+                "player_name": "Courtland Sutton",
+                "metric": "total_tds",
+                "target": 0.5,
+                "direction": "over"
             }
         ],
         "slip_id": "74A67",

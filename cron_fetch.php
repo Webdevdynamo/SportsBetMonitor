@@ -60,6 +60,31 @@ if (isset($gameData['value'][0]['games'])) {
     }
 }
 
+// --- PART 3: TEAM SCORES (For Moneyline) ---
+if (isset($gameData['value'][0]['games'])) {
+    foreach ($gameData['value'][0]['games'] as $g) {
+        $teamA = $g['participants'][0];
+        $teamB = $g['participants'][1];
+
+        $nameA = $teamA['team']['shortName']['rawName']; // e.g., "Patriots"
+        $nameB = $teamB['team']['shortName']['rawName']; // e.g., "Broncos"
+
+        // Map Team A
+        $flatStats[$nameA] = [
+            'score' => (int)$teamA['result']['score'],
+            'opponent_score' => (int)$teamB['result']['score'],
+            'is_final' => ($g['gameState']['gameStatus'] === 'Final')
+        ];
+
+        // Map Team B
+        $flatStats[$nameB] = [
+            'score' => (int)$teamB['result']['score'],
+            'opponent_score' => (int)$teamA['result']['score'],
+            'is_final' => ($g['gameState']['gameStatus'] === 'Final')
+        ];
+    }
+}
+
 // Atomic Write
 file_put_contents($cache_file . '.tmp', json_encode($flatStats));
 rename($cache_file . '.tmp', $cache_file);
