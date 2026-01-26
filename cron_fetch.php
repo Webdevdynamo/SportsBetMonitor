@@ -91,30 +91,32 @@ foreach ($gamesToFetch as $game) {
             
             // --- D/ST TOUCHDOWN LOGIC ---
             // echo "<pre>"; print_r($statEntry);
-            if (isset($statEntry['teamPlayerStatistics'])) {
-                foreach ($statEntry['teamPlayerStatistics'] as $tStat) {
-                    foreach ($tStat['playerStatistics'] as $pStat) {
-                        echo "<pre>"; print_r($pStat);
-                        $teamId = $pStat['player']['teamId'];
-                        $currentTeamName = $teamMap[$teamId] ?? "Unknown";
-                        // $teamRaw = $tStat['team']['shortName']['rawName'];
-                        $dstKey = $currentTeamName . " D/ST";
-                        // Summing Interception and Fumble recovery TDs
-                        $defTDs = ($tStat['defenseStatistics']['touchdowns'] ?? 0) + 
-                                ($tStat['defensiveStatistics']['fumbleRecoveryTouchdowns'] ?? 0);
+            // if (isset($statEntry['teamPlayerStatistics'])) {
+            //     foreach ($statEntry['teamPlayerStatistics'] as $tStat) {
+            //         foreach ($tStat['playerStatistics'] as $pStat) {
+            //             echo "<pre>"; print_r($pStat);
+            //             $teamId = $pStat['player']['teamId'];
+            //             $currentTeamName = $teamMap[$teamId] ?? "Unknown";
+            //             // $teamRaw = $tStat['team']['shortName']['rawName'];
+            //             $dstKey = $currentTeamName . " D/ST";
+            //             // Summing Interception and Fumble recovery TDs
+            //             $defTDs = ($tStat['defenseStatistics']['touchdowns'] ?? 0) + 
+            //                     ($tStat['defensiveStatistics']['fumbleRecoveryTouchdowns'] ?? 0);
 
-                        $flatStats[$dstKey] = [
-                            'total_tds' => $defTDs,
-                            'gameStatus' => $game['status']
-                        ];
-                    }
-                }
-            }
+            //             $flatStats[$dstKey] = [
+            //                 'total_tds' => $defTDs,
+            //                 'gameStatus' => $game['status']
+            //             ];
+            //         }
+            //     }
+            // }
             
 
             // --- PLAYER & D/ST CUMULATIVE STATISTICS ---
             foreach ($statEntry['teamPlayerStatistics'] as $team) {
                 // Get the common name from the map built in Stage 1 (e.g., "Rams")
+                print_r($team);
+                print_r($teamMap);
                 $currentTeamName = $teamMap[$team['teamId']] ?? "Unknown";
                 $dstKey = $currentTeamName . " D/ST";
 
