@@ -95,11 +95,12 @@ foreach ($gamesToFetch as $game) {
                 foreach ($statEntry['teamPlayerStatistics'] as $tStat) {
                     foreach ($tStat['playerStatistics'] as $pStat) {
                         echo "<pre>"; print_r($pStat);
-                        $teamId = $tStat['player']['shortName']['rawName'];
-                        $teamRaw = $tStat['team']['shortName']['rawName'];
-                        $dstKey = $teamRaw . " D/ST";
+                        $teamId = $pStat['player']['teamId'];
+                        $currentTeamName = $teamMap[$teamId] ?? "Unknown";
+                        // $teamRaw = $tStat['team']['shortName']['rawName'];
+                        $dstKey = $currentTeamName . " D/ST";
                         // Summing Interception and Fumble recovery TDs
-                        $defTDs = ($tStat['defensiveStatistics']['interceptionTouchdowns'] ?? 0) + 
+                        $defTDs = ($tStat['defenseStatistics']['touchdowns'] ?? 0) + 
                                 ($tStat['defensiveStatistics']['fumbleRecoveryTouchdowns'] ?? 0);
 
                         $flatStats[$dstKey] = [
@@ -111,26 +112,57 @@ foreach ($gamesToFetch as $game) {
             }
             
 
-            // --- PLAYER STATISTICS ---
+            // --- PLAYER & D/ST CUMULATIVE STATISTICS ---
             foreach ($statEntry['teamPlayerStatistics'] as $team) {
-                // print_r($teamMap);
-                // print_r($team);
-                // Get the common name from the map we built in Stage 1
-                 $currentTeamName = $teamMap[$team['teamId']] ?? "Unknown";
+                // Get the common name from the map built in Stage 1 (e.g., "Rams")
+                $currentTeamName = $teamMap[$team['teamId']] ?? "Unknown";
+                $dstKey = $currentTeamName . " D/ST";
+
+                // Initialize D/ST entry for this team if not already set
+                if (!isset($flatStats[$dstKey])) {
+                    $flatStats[$dstKey] = [
+                        'team' => $currentTeamName,
+                        'gameStatus' => $game['status'],
+                        'tackles' => 0,
+                        'sacks' => 0,
+                        'interceptions' => 0,
+                        'fumbles_forced' => 0,
+                        'fumble_recoveries' => 0,
+                        'total_tds' => 0,
+                        'passes_defended' => 0,
+                        'safeties' => 0
+                    ];
+                }
+
                 foreach ($team['playerStatistics'] as $p) {
                     $name = $p['player']['name']['rawName'] ?? null;
+                    $def = $p['defenseStatistics'] ?? [];
+
                     if ($name) {
+                        // 1. Update Individual Player Stats (Offensive focused)
                         $flatStats[$name] = [
-                            'team' => $currentTeamName, // NEW: Store the team name
+                            'team' => $currentTeamName,
                             'gameStatus' => $game['status'], 
                             'pass_yds' => $p['passingStatistics']['yards'] ?? 0,
                             'rush_yds' => $p['rushingStatistics']['yards'] ?? 0,
                             'rec_yds' => $p['receivingStatistics']['yards'] ?? 0,
                             'receptions' => $p['receivingStatistics']['receptions'] ?? 0,
                             'total_tds' => ($p['passingStatistics']['touchdowns'] ?? 0) + 
-                                           ($p['rushingStatistics']['touchdowns'] ?? 0) + 
-                                           ($p['receivingStatistics']['touchdowns'] ?? 0)
+                                        ($p['rushingStatistics']['touchdowns'] ?? 0) + 
+                                        ($p['receivingStatistics']['touchdowns'] ?? 0)
                         ];
+
+                        // 2. Aggregate Player Defense Data into Team D/ST
+                        if (!empty($def)) {
+                            $flatStats[$dstKey]['tackles'] += ($def['totalTackles'] ?? 0);
+                            $flatStats[$dstKey]['sacks'] += ($def['sacks'] ?? 0);
+                            $flatStats[$dstKey]['interceptions'] += ($def['interceptions'] ?? 0);
+                            $flatStats[$dstKey]['fumbles_forced'] += ($def['fumblesForced'] ?? 0);
+                            $flatStats[$dstKey]['fumble_recoveries'] += ($def['fumbleRecoveries'] ?? 0);
+                            $flatStats[$dstKey]['total_tds'] += ($def['touchdowns'] ?? 0);
+                            $flatStats[$dstKey]['passes_defended'] += ($def['passesDefended'] ?? 0);
+                            $flatStats[$dstKey]['safeties'] += ($def['safeties'] ?? 0);
+                        }
                     }
                 }
             }
