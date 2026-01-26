@@ -103,6 +103,11 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
         .modal-content { background: var(--card-bg); margin: 5% auto; padding: 30px; border: 1px solid var(--regal-gold); width: 450px; border-radius: 12px; }
         input, select, button.submit { width: 100%; padding: 12px; margin: 8px 0; background: #2a2a2a; border: 1px solid #444; color: white; border-radius: 6px; box-sizing: border-box; }
         button.submit { background: var(--regal-gold); color: black; font-weight: bold; cursor: pointer; border: none; }
+        .teamAlias{
+            vertical-align: super;
+            font-size: 0.8em; /* Adjust size as needed */
+            line-height: normal; /* Prevents affecting the line height of the parent element */
+        }
     </style>
 </head>
 <body>
@@ -261,7 +266,7 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
                     currentLabel = points_needed;
                     isWin = (points_needed || 0) > 0;
                 } else {
-                    teamName = (stats.team) ? " (" + stats.team + ")" : "";
+                    teamName = (stats.team) ? " <span class='teamAlias'>(" + stats.team + ")</span>" : "";
                     const rawVal = stats[leg.metric] || 0;
                     currentLabel = rawVal;
                     isWin = (leg.direction === 'over') ? (rawVal >= leg.target) : (rawVal <= leg.target);
