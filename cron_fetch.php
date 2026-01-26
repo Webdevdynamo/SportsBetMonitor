@@ -90,9 +90,9 @@ foreach ($gamesToFetch as $game) {
         foreach ($deepData['value'][0]['statistics'] as $statEntry) {
             
             // --- D/ST TOUCHDOWN LOGIC ---
-            echo "<pre>"; print_r($statEntry);
-            if (isset($statEntry['teamStatistics'])) {
-                foreach ($statEntry['teamStatistics'] as $tStat) {
+            // echo "<pre>"; print_r($statEntry);
+            if (isset($statEntry['teamPlayerStatistics'])) {
+                foreach ($statEntry['teamPlayerStatistics'] as $tStat) {
                     echo "<pre>"; print_r($tStat);
                     $teamRaw = $tStat['team']['shortName']['rawName'];
                     $dstKey = $teamRaw . " D/ST";
