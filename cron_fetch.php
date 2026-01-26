@@ -115,7 +115,7 @@ foreach ($gamesToFetch as $game) {
             // --- PLAYER & D/ST CUMULATIVE STATISTICS ---
             foreach ($statEntry['teamPlayerStatistics'] as $team) {
                 // Get the common name from the map built in Stage 1 (e.g., "Rams")
-                print_r($team);
+                echo "<PRE>";print_r($team);
                 print_r($teamMap);
                 $currentTeamName = $teamMap[$team['teamId']] ?? "Unknown";
                 $dstKey = $currentTeamName . " D/ST";
