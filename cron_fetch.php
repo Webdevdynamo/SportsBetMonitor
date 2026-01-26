@@ -93,17 +93,20 @@ foreach ($gamesToFetch as $game) {
             // echo "<pre>"; print_r($statEntry);
             if (isset($statEntry['teamPlayerStatistics'])) {
                 foreach ($statEntry['teamPlayerStatistics'] as $tStat) {
-                    echo "<pre>"; print_r($tStat);
-                    $teamRaw = $tStat['team']['shortName']['rawName'];
-                    $dstKey = $teamRaw . " D/ST";
-                    // Summing Interception and Fumble recovery TDs
-                    $defTDs = ($tStat['defensiveStatistics']['interceptionTouchdowns'] ?? 0) + 
-                             ($tStat['defensiveStatistics']['fumbleRecoveryTouchdowns'] ?? 0);
+                    foreach ($tStat['playerStatistics'] as $pStat) {
+                        echo "<pre>"; print_r($pStat);
+                        $teamId = $tStat['player']['shortName']['rawName'];
+                        $teamRaw = $tStat['team']['shortName']['rawName'];
+                        $dstKey = $teamRaw . " D/ST";
+                        // Summing Interception and Fumble recovery TDs
+                        $defTDs = ($tStat['defensiveStatistics']['interceptionTouchdowns'] ?? 0) + 
+                                ($tStat['defensiveStatistics']['fumbleRecoveryTouchdowns'] ?? 0);
 
-                    $flatStats[$dstKey] = [
-                        'total_tds' => $defTDs,
-                        'gameStatus' => $game['status']
-                    ];
+                        $flatStats[$dstKey] = [
+                            'total_tds' => $defTDs,
+                            'gameStatus' => $game['status']
+                        ];
+                    }
                 }
             }
             
