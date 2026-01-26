@@ -257,7 +257,7 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
                 } else if (leg.metric === 'spread') {
                     const diff = (stats.score || 0) - (stats.opponent_score || 0);
                     console.log(leg);
-                    console.log(diff);
+                    console.log(diff + leg.target);
                     currentLabel = (diff > 0 ? '+' : '') + diff;
                     isWin = (stats.score || 0) > (stats.opponent_score || 0);
                 } else {
