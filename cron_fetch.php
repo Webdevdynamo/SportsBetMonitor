@@ -44,7 +44,6 @@ if (isset($leagueData['value'][0]['schedules'])) {
             $gameStartTime = (float)$g['startDateTime'];
             if ($gameStartTime >= $todayStart && $gameStartTime < $todayEnd) {
                 $status = $g['gameState']['gameStatus'] ?? 'Upcoming';
-                echo "<PRE>"; print_r($g['participants']);
                 $teamA = $g['participants'][0]['team']['shortName']['rawName'];
                 $teamB = $g['participants'][1]['team']['shortName']['rawName'];
                 $aliasA = $g['participants'][0]['team']['alias'];
@@ -53,7 +52,7 @@ if (isset($leagueData['value'][0]['schedules'])) {
                 $teamMap[$g['participants'][0]['team']['id']]['alias'] = $aliasA;
                 $teamMap[$g['participants'][1]['team']['id']]['alias'] = $aliasB;
                 $teamMap[$g['participants'][0]['team']['id']]['name'] = $teamA;
-                $teamMap[$g['participants'][1]['team']['id']]['name'] = $aliasB;
+                $teamMap[$g['participants'][1]['team']['id']]['name'] = $teamB;
                 $scoreA = (int)($g['participants'][0]['result']['score'] ?? 0);
                 $scoreB = (int)($g['participants'][1]['result']['score'] ?? 0);
 
