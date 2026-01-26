@@ -240,6 +240,7 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
         const sortedSlips = mySlips.map(slip => {
             const isFinal = slip.legs.every(leg => {
                 const stats = liveData[leg.player_name] || {};
+                console.log(stats);
                 return (stats.gameStatus === 'Final');
             });
             return { ...slip, isFinal };
