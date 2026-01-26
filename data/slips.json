@@ -61,7 +61,7 @@
     "wager": 15.00,
     "payout": 840.00,
     "legs": [
-      { "player_name": "Sam Darnold", "metric": "interceptions", "target": 2, "direction": "over" },
+      { "player_name": "Sam Darnold", "metric": "interceptions", "target": 1, "direction": "over" },
       { "player_name": "Rams", "metric": "spread", "target": -3.5, "direction": "over" },
       { "player_name": "Rams D/ST", "metric": "total_tds", "target": 0.5, "direction": "over" },
       { "player_name": "Puka Nacua", "metric": "total_tds", "target": 0.5, "direction": "over" }
