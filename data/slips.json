@@ -36,7 +36,7 @@
       { "player_name": "Patriots@Broncos Total", "metric": "total_points", "target": 44.5, "direction": "under" },
       { "player_name": "Rhamondre Stevenson", "metric": "rush_yds", "target": 40, "direction": "over" },
       { "player_name": "Courtland Sutton", "metric": "receptions", "target": 3, "direction": "over" },
-      { "player_name": "Kenneth Walker", "metric": "rush_yds", "target": 60, "direction": "over" },
+      { "player_name": "Kenneth Walker", "metric": "rush_yds", "target": 69.5, "direction": "over" },
       { "player_name": "Jaxon Smith-Njigba", "metric": "receptions", "target": 5, "direction": "over" },
       { "player_name": "Puka Nacua", "metric": "rec_yds", "target": 50, "direction": "over" }
     ]
@@ -48,8 +48,8 @@
     "wager": 10.00,
     "payout": 70.50,
     "legs": [
-      { "player_name": "Puka Nacua", "metric": "receptions", "target": 6, "direction": "over" },
-      { "player_name": "Kenneth Walker", "metric": "rush_yds", "target": 70, "direction": "over" },
+      { "player_name": "Puka Nacua", "metric": "receptions", "target": 5.5, "direction": "over" },
+      { "player_name": "Kenneth Walker", "metric": "rush_yds", "target": 69.5, "direction": "over" },
       { "player_name": "Kyren Williams", "metric": "total_tds", "target": 0.5, "direction": "over" },
       { "player_name": "Cooper Kupp", "metric": "rec_yds", "target": 15, "direction": "over" }
     ]
