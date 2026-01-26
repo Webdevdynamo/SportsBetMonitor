@@ -272,7 +272,7 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
                     currentLabel = points_needed;
                     isWin = (points_needed || 0) > 0;
                 } else {
-                    teamName = (stats.team) ? " <span class='teamAlias'>(" + stats.team + ")</span>" : "";
+                    teamName = (stats.alias) ? " <span class='teamAlias'>(" + stats.alias + ")</span>" : "";
                     const rawVal = stats[leg.metric] || 0;
                     currentLabel = rawVal;
                     isWin = (leg.direction === 'over') ? (rawVal >= leg.target) : (rawVal <= leg.target);
