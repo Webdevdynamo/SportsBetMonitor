@@ -46,9 +46,9 @@ if (isset($leagueData['value'][0]['schedules'])) {
                 $status = $g['gameState']['gameStatus'] ?? 'Upcoming';
                 $teamA = $g['participants'][0]['team']['shortName']['rawName'];
                 $teamB = $g['participants'][1]['team']['shortName']['rawName'];
-                echo "<pre>THIS IS THE ID:";print_r($g['participants'][0]);
-                $teamMap[$g['participants'][0]['id']] = $teamA;
-                $teamMap[$g['participants'][1]['id']] = $teamB;
+                // echo "<pre>THIS IS THE ID:";print_r($g['participants'][0]);
+                $teamMap[$g['participants'][0]['team']['id']] = $teamA;
+                $teamMap[$g['participants'][1]['team']] = $teamB;
                 $scoreA = (int)($g['participants'][0]['result']['score'] ?? 0);
                 $scoreB = (int)($g['participants'][1]['result']['score'] ?? 0);
 
@@ -106,7 +106,7 @@ foreach ($gamesToFetch as $game) {
             // --- PLAYER STATISTICS ---
             foreach ($statEntry['teamPlayerStatistics'] as $team) {
                 // print_r($teamMap);
-                print_r($team);
+                // print_r($team);
                 // Get the common name from the map we built in Stage 1
                  $currentTeamName = $teamMap[$team['teamId']] ?? "Unknown";
                 foreach ($team['playerStatistics'] as $p) {
