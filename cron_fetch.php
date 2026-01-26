@@ -46,6 +46,8 @@ if (isset($leagueData['value'][0]['schedules'])) {
                 $status = $g['gameState']['gameStatus'] ?? 'Upcoming';
                 $teamA = $g['participants'][0]['team']['shortName']['rawName'];
                 $teamB = $g['participants'][1]['team']['shortName']['rawName'];
+                $teamMap[$g['participants'][0]['id']] = $teamA;
+                $teamMap[$g['participants'][1]['id']] = $teamB;
                 $scoreA = (int)($g['participants'][0]['result']['score'] ?? 0);
                 $scoreB = (int)($g['participants'][1]['result']['score'] ?? 0);
 
@@ -102,10 +104,13 @@ foreach ($gamesToFetch as $game) {
 
             // --- PLAYER STATISTICS ---
             foreach ($statEntry['teamPlayerStatistics'] as $team) {
+                // Get the common name from the map we built in Stage 1
+                 $currentTeamName = $teamMap[$team['teamId']] ?? "Unknown";
                 foreach ($team['playerStatistics'] as $p) {
                     $name = $p['player']['name']['rawName'] ?? null;
                     if ($name) {
                         $flatStats[$name] = [
+                            'team' => $currentTeamName, // NEW: Store the team name
                             'gameStatus' => $game['status'], 
                             'pass_yds' => $p['passingStatistics']['yards'] ?? 0,
                             'rush_yds' => $p['rushingStatistics']['yards'] ?? 0,
