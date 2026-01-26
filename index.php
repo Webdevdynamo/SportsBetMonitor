@@ -98,7 +98,7 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
         .current-stat { font-family: 'Courier New', monospace; font-size: 1.4em; color: var(--regal-gold); font-weight: bold;}
 
         /* Modal Styles */
-        #add-btn { position: fixed; bottom: 30px; right: 30px; background: var(--regal-gold); color: black; border: none; width: 60px; height: 60px; border-radius: 50%; font-size: 30px; cursor: pointer; z-index: 50; }
+        #add-btn { display: none; position: fixed; bottom: 30px; right: 30px; background: var(--regal-gold); color: black; border: none; width: 60px; height: 60px; border-radius: 50%; font-size: 30px; cursor: pointer; z-index: 50; }
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); }
         .modal-content { background: var(--card-bg); margin: 5% auto; padding: 30px; border: 1px solid var(--regal-gold); width: 450px; border-radius: 12px; }
         input, select, button.submit { width: 100%; padding: 12px; margin: 8px 0; background: #2a2a2a; border: 1px solid #444; color: white; border-radius: 6px; box-sizing: border-box; }
