@@ -269,7 +269,7 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
                 if (!isWin) slipWinning = false;
 
                 legsHtml += `<div class="leg ${isWin ? 'winning' : 'losing'}">
-                    <span class="player-name">${leg.player_name} $(teamName)</span>
+                    <span class="player-name">${leg.player_name} ${teamName}</span>
                     <span class="metric-label">${leg.metric.replace('_',' ')}</span>
                     <div class="stat-line">
                         <span style="color: #666; font-size: 0.8em;">Target: ${leg.direction.toUpperCase()} ${leg.target}</span>
