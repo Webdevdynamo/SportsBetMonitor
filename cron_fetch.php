@@ -46,9 +46,11 @@ if (isset($leagueData['value'][0]['schedules'])) {
                 $status = $g['gameState']['gameStatus'] ?? 'Upcoming';
                 $teamA = $g['participants'][0]['team']['shortName']['rawName'];
                 $teamB = $g['participants'][1]['team']['shortName']['rawName'];
+                $aliasA = $g['participants'][0]['team']['alias'];
+                $aliasB = $g['participants'][1]['team']['alias'];
                 // echo "<pre>THIS IS THE ID:";print_r($g['participants'][0]);
-                $teamMap[$g['participants'][0]['team']['id']] = $teamA;
-                $teamMap[$g['participants'][1]['team']['id']] = $teamB;
+                $teamMap[$g['participants'][0]['team']['id']] = $aliasA;
+                $teamMap[$g['participants'][1]['team']['id']] = $aliasB;
                 $scoreA = (int)($g['participants'][0]['result']['score'] ?? 0);
                 $scoreB = (int)($g['participants'][1]['result']['score'] ?? 0);
 
