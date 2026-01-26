@@ -106,7 +106,7 @@ foreach ($gamesToFetch as $game) {
             // --- PLAYER STATISTICS ---
             foreach ($statEntry['teamPlayerStatistics'] as $team) {
                 // print_r($teamMap);
-                print_r($team['teamId']);
+                print_r($team);
                 // Get the common name from the map we built in Stage 1
                  $currentTeamName = $teamMap[$team['teamId']] ?? "Unknown";
                 foreach ($team['playerStatistics'] as $p) {
