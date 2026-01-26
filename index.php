@@ -256,10 +256,9 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
                     isWin = (stats.score || 0) > (stats.opponent_score || 0);
                 } else if (leg.metric === 'spread') {
                     const diff = (stats.score || 0) - (stats.opponent_score || 0);
-                    console.log(leg);
-                    console.log(diff + leg.target);
-                    currentLabel = (diff > 0 ? '+' : '') + diff;
-                    isWin = (stats.score || 0) > (stats.opponent_score || 0);
+                    const points_needed = diff + leg.target;
+                    currentLabel = points_needed;
+                    isWin = (points_needed || 0) >= 0;
                 } else {
                     const rawVal = stats[leg.metric] || 0;
                     currentLabel = rawVal;
