@@ -92,6 +92,7 @@ foreach ($gamesToFetch as $game) {
             // --- D/ST TOUCHDOWN LOGIC ---
             if (isset($statEntry['teamStatistics'])) {
                 foreach ($statEntry['teamStatistics'] as $tStat) {
+                    echo "<pre>"; print_r($tStat);
                     $teamRaw = $tStat['team']['shortName']['rawName'];
                     $dstKey = $teamRaw . " D/ST";
                     // Summing Interception and Fumble recovery TDs
@@ -104,6 +105,7 @@ foreach ($gamesToFetch as $game) {
                     ];
                 }
             }
+            
 
             // --- PLAYER STATISTICS ---
             foreach ($statEntry['teamPlayerStatistics'] as $team) {
