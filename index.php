@@ -261,6 +261,7 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
                     currentLabel = points_needed;
                     isWin = (points_needed || 0) > 0;
                 } else {
+                    console.log(stats);
                     teamName = " (" + leg.team + ")";
                     const rawVal = stats[leg.metric] || 0;
                     currentLabel = rawVal;
