@@ -49,8 +49,10 @@ if (isset($leagueData['value'][0]['schedules'])) {
                 $aliasA = $g['participants'][0]['team']['alias'];
                 $aliasB = $g['participants'][1]['team']['alias'];
                 // echo "<pre>THIS IS THE ID:";print_r($g['participants'][0]);
-                $teamMap[$g['participants'][0]['team']['id']] = $aliasA;
-                $teamMap[$g['participants'][1]['team']['id']] = $aliasB;
+                $teamMap[$g['participants'][0]['team']['id']]['alias'] = $aliasA;
+                $teamMap[$g['participants'][1]['team']['id']]['alias'] = $aliasB;
+                $teamMap[$g['participants'][0]['team']['id']]['name'] = $teamA;
+                $teamMap[$g['participants'][1]['team']['id']]['name'] = $aliasB;
                 $scoreA = (int)($g['participants'][0]['result']['score'] ?? 0);
                 $scoreB = (int)($g['participants'][1]['result']['score'] ?? 0);
 
@@ -114,16 +116,18 @@ foreach ($gamesToFetch as $game) {
 
             // --- PLAYER & D/ST CUMULATIVE STATISTICS ---
             foreach ($statEntry['teamPlayerStatistics'] as $team) {
-                // Get the common name from the map built in Stage 1 (e.g., "Rams")
-                echo "<PRE>";print_r($team);
-                print_r($teamMap);
-                $currentTeamName = $teamMap[$team['teamId']] ?? "Unknown";
+                // // Get the common name from the map built in Stage 1 (e.g., "Rams")
+                // echo "<PRE>";print_r($team);
+                // print_r($teamMap);
+                $currentTeamName = $teamMap[$team['teamId']]['name'] ?? "Unknown";
+                $currentTeamAlias = $teamMap[$team['teamId']]['alias'] ?? "Unknown";
                 $dstKey = $currentTeamName . " D/ST";
 
                 // Initialize D/ST entry for this team if not already set
                 if (!isset($flatStats[$dstKey])) {
                     $flatStats[$dstKey] = [
                         'team' => $currentTeamName,
+                        'alias' => $currentTeamAlias,
                         'gameStatus' => $game['status'],
                         'tackles' => 0,
                         'sacks' => 0,
