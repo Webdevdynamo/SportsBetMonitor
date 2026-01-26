@@ -248,6 +248,7 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
             slip.legs.forEach(leg => {
                 const stats = liveData[leg.player_name] || {};
                 let currentLabel = 0, isWin = false;
+                let teamName = "";
                 
                 // Track win/loss for the ribbon and background color
                 if (leg.metric === 'moneyline') {
@@ -260,6 +261,7 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
                     currentLabel = points_needed;
                     isWin = (points_needed || 0) > 0;
                 } else {
+                    teamName = " (" + leg.metric + ")";
                     const rawVal = stats[leg.metric] || 0;
                     currentLabel = rawVal;
                     isWin = (leg.direction === 'over') ? (rawVal >= leg.target) : (rawVal <= leg.target);
@@ -267,7 +269,7 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
                 if (!isWin) slipWinning = false;
 
                 legsHtml += `<div class="leg ${isWin ? 'winning' : 'losing'}">
-                    <span class="player-name">${leg.player_name}</span>
+                    <span class="player-name">${leg.player_name} $(teamName)</span>
                     <span class="metric-label">${leg.metric.replace('_',' ')}</span>
                     <div class="stat-line">
                         <span style="color: #666; font-size: 0.8em;">Target: ${leg.direction.toUpperCase()} ${leg.target}</span>
