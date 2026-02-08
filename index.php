@@ -256,37 +256,38 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
             let slipWinning = true;
             let legsHtml = '';
 
+            // Build Legs
             slip.legs.forEach(leg => {
                 const stats = liveData[leg.player_name] || {};
                 let currentLabel = 0, isWin = false;
-                let teamName = "";
                 
-                // Track win/loss for the ribbon and background color
+                if ((stats.gameStatus || 'Upcoming') !== 'Final') allFinal = false;
+
                 if (leg.metric === 'moneyline') {
                     const diff = (stats.score || 0) - (stats.opponent_score || 0);
                     currentLabel = (diff > 0 ? '+' : '') + diff;
                     isWin = (stats.score || 0) > (stats.opponent_score || 0);
-                } else if (leg.metric === 'spread') {
-                    const diff = (stats.score || 0) - (stats.opponent_score || 0);
-                    const points_needed = diff + leg.target;
-                    currentLabel = points_needed;
-                    isWin = (points_needed || 0) > 0;
                 } else {
-                    teamName = (stats.alias) ? " <span class='teamAlias'>(" + stats.alias + ")</span>" : "";
                     const rawVal = stats[leg.metric] || 0;
                     currentLabel = rawVal;
                     isWin = (leg.direction === 'over') ? (rawVal >= leg.target) : (rawVal <= leg.target);
                 }
+
                 if (!isWin) slipWinning = false;
 
-                legsHtml += `<div class="leg ${isWin ? 'winning' : 'losing'}">
-                    <span class="player-name">${leg.player_name} ${teamName}</span>
-                    <span class="metric-label">${leg.metric.replace('_',' ')}</span>
-                    <div class="stat-line">
-                        <span style="color: #666; font-size: 0.8em;">Target: ${leg.direction.toUpperCase()} ${leg.target}</span>
-                        <span class="current-stat">${currentLabel}</span>
-                    </div>
-                </div>`;
+                // --- NEW: NOTE RENDERING ---
+                const noteHtml = leg.note ? `<div class="leg-note" style="font-size: 0.7em; color: var(--regal-gold); font-style: italic; margin-bottom: 4px;">${leg.note}</div>` : '';
+
+                legsHtml += `
+                    <div class="leg ${isWin ? 'winning' : 'losing'}">
+                        <span class="player-name">${leg.player_name}</span>
+                        ${noteHtml}
+                        <span class="metric-label">${leg.metric.replace('_',' ')}</span>
+                        <div class="stat-line">
+                            <span style="color: #666; font-size: 0.8em;">Target: ${leg.direction.toUpperCase()} ${leg.target}</span>
+                            <span class="current-stat">${currentLabel}</span>
+                        </div>
+                    </div>`;
             });
 
             const numOdds = parseInt((slip.odds || "").toString().replace('+', ''));
