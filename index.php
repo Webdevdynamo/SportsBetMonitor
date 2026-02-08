@@ -252,12 +252,12 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
         console.log(sortedSlips);
 
         sortedSlips.forEach(slip => {
+            console.log(slip);
             let allFinal = slip.isFinal;
             let slipWinning = true;
             let legsHtml = '';
 
             // Build Legs
-            console.log(slip);
             slip.legs.forEach(leg => {
                 const stats = liveData[leg.player_name] || {};
                 let currentLabel = 0, isWin = false;
