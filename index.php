@@ -278,10 +278,15 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
                 // --- NEW: NOTE RENDERING ---
                 const noteHtml = leg.note ? `<div class="leg-note" style="font-size: 0.7em; color: var(--regal-gold); font-style: italic; margin-bottom: 4px;">${leg.note}</div>` : '';
 
+                // Identify if the period is over for this specific leg
+                const isPeriodOver = (leg.note.includes("1st Half") && ["Halftime", "Q3", "Q4", "Final"].includes(stats.gameStatus)) ||
+                                    (leg.note.includes("1st Quarter") && ["Q2", "Halftime", "Q3", "Q4", "Final"].includes(stats.gameStatus));
+
                 legsHtml += `
-                    <div class="leg ${isWin ? 'winning' : 'losing'}">
+                    <div class="leg ${isWin ? 'winning' : 'losing'}" style="${isPeriodOver ? 'opacity: 0.6; border-style: dashed;' : ''}">
                         <span class="player-name">${leg.player_name}</span>
                         ${noteHtml}
+                        ${isPeriodOver ? '<span style="font-size:0.6em; color:var(--regal-gold);">[PERIOD CLOSED]</span>' : ''}
                         <span class="metric-label">${leg.metric.replace('_',' ')}</span>
                         <div class="stat-line">
                             <span style="color: #666; font-size: 0.8em;">Target: ${leg.direction.toUpperCase()} ${leg.target}</span>

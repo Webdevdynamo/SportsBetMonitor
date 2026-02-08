@@ -147,6 +147,8 @@ foreach ($gamesToFetch as $game) {
                     if ($name) {
                         // 1. Update Individual Player Stats (Offensive focused)
                         $flatStats[$name] = [
+                            'gameStatus' => $game['status'], // e.g., "Q2" or "Halftime"
+                            'clock' => $flatStats[$totalKey]['clock'],
                             'team' => $currentTeamName,
                             'alias' => $currentTeamAlias,
                             'gameStatus' => $game['status'], 
