@@ -262,7 +262,6 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
                 let currentLabel = 0, isWin = false;
                 
                 if ((stats.gameStatus || 'Upcoming') !== 'Final') allFinal = false;
-
                 if (leg.metric === 'moneyline') {
                     const diff = (stats.score || 0) - (stats.opponent_score || 0);
                     currentLabel = (diff > 0 ? '+' : '') + diff;
@@ -306,6 +305,7 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
                 <span>WAGER: <b>$${slip.wager}</b></span>
                 <span>PAYOUT: <b style="color:var(--win-green)">$${payout}</b></span>
             </div>` : '';
+            console.log(metaHtml);
 
             const card = document.createElement('div');
             card.className = `slip-card ${finalClass} ${isLegend ? 'legend-bet' : ''}`;
