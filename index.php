@@ -278,7 +278,6 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
 
                 // --- NEW: NOTE RENDERING ---
                 const noteHtml = leg.note ? `<div class="leg-note" style="font-size: 0.7em; color: var(--regal-gold); font-style: italic; margin-bottom: 4px;">${leg.note}</div>` : '';
-                console.log(noteHtml);
 
                 // Identify if the period is over for this specific leg
                 const isPeriodOver = (leg.note.includes("1st Half") && ["Halftime", "Q3", "Q4", "Final"].includes(stats.gameStatus)) ||
