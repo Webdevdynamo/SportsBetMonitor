@@ -300,12 +300,12 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
             const ribbonHtml = allFinal ? `<div class="status-ribbon">${slipWinning ? 'Win' : 'Loss'}</div>` : '';
             const payout = slip.payout || calculatePayout(slip.wager, slip.odds);
 
+            console.log(slip);
             let metaHtml = (slip.odds || slip.wager) ? `<div class="slip-meta" style="display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 0.8em; color: #888; border-bottom: 1px solid #222; padding-bottom: 10px; position: relative; z-index: 2;">
                 <span>ODDS: <b style="color:var(--regal-gold)">${slip.odds}</b></span>
                 <span>WAGER: <b>$${slip.wager}</b></span>
                 <span>PAYOUT: <b style="color:var(--win-green)">$${payout}</b></span>
             </div>` : '';
-            console.log(metaHtml);
 
             const card = document.createElement('div');
             card.className = `slip-card ${finalClass} ${isLegend ? 'legend-bet' : ''}`;
