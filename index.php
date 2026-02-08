@@ -237,7 +237,6 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
 
         // --- NEW: SORTING LOGIC ---
         // We create a temporary array that includes a 'isFinal' flag for sorting
-        console.log(mySlips);
         mySlips.map(slip => {
             slip.legs.every(leg => {
                 // const stats = liveData[leg.player_name] || {};
@@ -250,6 +249,7 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
             });
             return { ...slip, isFinal };
         }).sort((a, b) => a.isFinal - b.isFinal); // False (0) comes before True (1)
+        console.log(sortedSlips);
 
         sortedSlips.forEach(slip => {
             let allFinal = slip.isFinal;
