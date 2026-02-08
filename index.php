@@ -252,7 +252,6 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
         console.log(sortedSlips);
 
         sortedSlips.forEach(slip => {
-            console.log(slip);
             let allFinal = slip.isFinal;
             let slipWinning = true;
             let legsHtml = '';
@@ -293,6 +292,7 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
                             <span class="current-stat">${currentLabel}</span>
                         </div>
                     </div>`;
+                console.log(slip);
             });
 
             const numOdds = parseInt((slip.odds || "").toString().replace('+', ''));
