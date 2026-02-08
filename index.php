@@ -258,8 +258,6 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
 
             // Build Legs
             slip.legs.forEach(leg => {
-                console.log(slip);
-                console.log(leg);
                 const stats = liveData[leg.player_name] || {};
                 let currentLabel = 0, isWin = false;
                 
@@ -273,6 +271,8 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
                     currentLabel = rawVal;
                     isWin = (leg.direction === 'over') ? (rawVal >= leg.target) : (rawVal <= leg.target);
                 }
+                console.log(slip);
+                console.log(leg);
 
                 if (!isWin) slipWinning = false;
 
