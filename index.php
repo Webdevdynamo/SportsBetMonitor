@@ -258,6 +258,8 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
 
             // Build Legs
             slip.legs.forEach(leg => {
+                console.log(slip);
+                console.log(leg);
                 const stats = liveData[leg.player_name] || {};
                 let currentLabel = 0, isWin = false;
                 
@@ -292,7 +294,6 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
                             <span class="current-stat">${currentLabel}</span>
                         </div>
                     </div>`;
-                console.log(slip);
             });
 
             const numOdds = parseInt((slip.odds || "").toString().replace('+', ''));
