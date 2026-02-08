@@ -175,11 +175,11 @@
       {
         "player_name": "Drake Maye",
         "metric": "interceptions",
-        "target": 1,
+        "target": .5,
         "direction": "over"
       },
       {
-        "player_name": "Kenneth Walker III",
+        "player_name": "Kenneth Walker",
         "metric": "total_tds",
         "target": 1,
         "direction": "over",
