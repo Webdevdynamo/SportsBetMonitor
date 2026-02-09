@@ -3,6 +3,7 @@
     "slip_id": "SGP-1H-SEA-NE-01",
     "odds": "+218", 
     "wager": 10.00,
+    "settled_status": "loss",
     "payout": 31.80,
     "legs": [
       {
@@ -77,6 +78,7 @@
     "slip_id": "LEGEND-SGP-MOONSHOT",
     "odds": "+21000",
     "wager": 3.00,
+    "settled_status": "loss",
     "payout": 633.00,
     "legs": [
       {
