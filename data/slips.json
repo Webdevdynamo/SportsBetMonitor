@@ -186,5 +186,49 @@
         "note": "Anytime TD Scorer"
       }
     ]
+  },
+  {
+    "slip_id": "SGP-BOOST-6L-0208",
+    "odds": "+208",
+    "wager": 20.00,
+    "payout": 74.00,
+    "legs": [
+      {
+        "player_name": "Drake Maye",
+        "metric": "rush_yds",
+        "target": 19,
+        "direction": "over"
+      },
+      {
+        "player_name": "Jaxon Smith-Njigba",
+        "metric": "receptions",
+        "target": 4,
+        "direction": "over"
+      },
+      {
+        "player_name": "Kenneth Walker",
+        "metric": "rush_yds",
+        "target": 49,
+        "direction": "over"
+      },
+      {
+        "player_name": "Sam Darnold",
+        "metric": "pass_yds",
+        "target": 179,
+        "direction": "over"
+      },
+      {
+        "player_name": "Seahawks@Patriots Total",
+        "metric": "total_points",
+        "target": 54.5,
+        "direction": "under"
+      },
+      {
+        "player_name": "Jaxon Smith-Njigba",
+        "metric": "rec_yds",
+        "target": 59,
+        "direction": "over"
+      }
+    ]
   }
 ]
