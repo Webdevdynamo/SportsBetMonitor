@@ -179,7 +179,7 @@
       {
         "player_name": "Drake Maye",
         "metric": "interceptions",
-        "target": 0.5,
+        "target": 1,
         "direction": "over"
       },
       {
