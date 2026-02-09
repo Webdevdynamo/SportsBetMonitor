@@ -48,6 +48,7 @@
     "slip_id": "LEGEND-SHAHEED-FTD",
     "odds": "+1900",
     "wager": 2.50,
+    "settled_status": "loss",
     "payout": 50.00,
     "legs": [
       {
@@ -63,6 +64,7 @@
     "slip_id": "LEGEND-KUPP-FTD",
     "odds": "+1300",
     "wager": 2.50,
+    "settled_status": "loss",
     "payout": 35.00,
     "legs": [
       {
