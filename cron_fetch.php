@@ -91,34 +91,8 @@ foreach ($gamesToFetch as $game) {
     if (isset($deepData['value'][0]['statistics'])) {
         foreach ($deepData['value'][0]['statistics'] as $statEntry) {
             
-            // --- D/ST TOUCHDOWN LOGIC ---
-            // echo "<pre>"; print_r($statEntry);
-            // if (isset($statEntry['teamPlayerStatistics'])) {
-            //     foreach ($statEntry['teamPlayerStatistics'] as $tStat) {
-            //         foreach ($tStat['playerStatistics'] as $pStat) {
-            //             echo "<pre>"; print_r($pStat);
-            //             $teamId = $pStat['player']['teamId'];
-            //             $currentTeamName = $teamMap[$teamId] ?? "Unknown";
-            //             // $teamRaw = $tStat['team']['shortName']['rawName'];
-            //             $dstKey = $currentTeamName . " D/ST";
-            //             // Summing Interception and Fumble recovery TDs
-            //             $defTDs = ($tStat['defenseStatistics']['touchdowns'] ?? 0) + 
-            //                     ($tStat['defensiveStatistics']['fumbleRecoveryTouchdowns'] ?? 0);
-
-            //             $flatStats[$dstKey] = [
-            //                 'total_tds' => $defTDs,
-            //                 'gameStatus' => $game['status']
-            //             ];
-            //         }
-            //     }
-            // }
-            
-
             // --- PLAYER & D/ST CUMULATIVE STATISTICS ---
             foreach ($statEntry['teamPlayerStatistics'] as $team) {
-                // // Get the common name from the map built in Stage 1 (e.g., "Rams")
-                // echo "<PRE>";print_r($team);
-                // print_r($teamMap);
                 $currentTeamName = $teamMap[$team['teamId']]['name'] ?? "Unknown";
                 $currentTeamAlias = $teamMap[$team['teamId']]['alias'] ?? "Unknown";
                 $dstKey = $currentTeamName . " D/ST";
@@ -142,28 +116,30 @@ foreach ($gamesToFetch as $game) {
 
                 foreach ($team['playerStatistics'] as $p) {
                     $name = $p['player']['name']['rawName'] ?? null;
-                    $def = $p['defenseStatistics'] ?? [];
+                    
+                    // --- NEW: EXPLICIT STAT BLOCK CAPTURE ---
+                    $pass = $p['passingStatistics'] ?? []; // CRITICAL: Defines $pass
+                    $def  = $p['defenseStatistics'] ?? [];
+                    $rush = $p['rushingStatistics'] ?? [];
+                    $rec  = $p['receivingStatistics'] ?? [];
 
                     if ($name) {
-                        // 1. Update Individual Player Stats (Offensive focused)
-                        // We use the null-coalescing operator to check both spots
-                        // If it's in pass stats (QB), take that. Otherwise, check defense stats (DB).
+                        // 1. Update Individual Player Stats
+                        // Track both thrown (QB) and caught (DB) picks
                         $actualInterceptions = ($pass['interceptions'] ?? 0) + ($def['interceptions'] ?? 0);
+
                         $flatStats[$name] = [
                             'team' => $currentTeamName,
                             'gameStatus' => $game['status'], 
                             'pass_yds' => $pass['yards'] ?? 0,
-                            'rush_yds' => $p['rushingStatistics']['yards'] ?? 0,
-                            'rec_yds' => $p['receivingStatistics']['yards'] ?? 0,
-                            'receptions' => $p['receivingStatistics']['receptions'] ?? 0,
-                            
-                            // FIXED: Now tracks both thrown and caught picks
+                            'rush_yds' => $rush['yards'] ?? 0,
+                            'rec_yds' => $rec['yards'] ?? 0,
+                            'receptions' => $rec['receptions'] ?? 0,
                             'interceptions' => $actualInterceptions, 
-                            
                             'total_tds' => ($pass['touchdowns'] ?? 0) + 
-                                        ($p['rushingStatistics']['touchdowns'] ?? 0) + 
-                                        ($p['receivingStatistics']['touchdowns'] ?? 0) +
-                                        ($def['touchdowns'] ?? 0)
+                                           ($rush['touchdowns'] ?? 0) + 
+                                           ($rec['touchdowns'] ?? 0) +
+                                           ($def['touchdowns'] ?? 0)
                         ];
 
                         // 2. Aggregate Player Defense Data into Team D/ST
