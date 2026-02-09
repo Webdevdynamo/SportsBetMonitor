@@ -262,7 +262,7 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
                 let currentLabel = 0, isWin = false;
                 
                 if ((stats.gameStatus || 'Upcoming') !== 'Final') allFinal = false;
-                if (leg.metric === 'moneyline') {
+                if (leg.metric === 'moneyline' || leg.metric === 'spread') {
                     const diff = (stats.score || 0) - (stats.opponent_score || 0);
                     currentLabel = (diff > 0 ? '+' : '') + diff;
                     isWin = (stats.score || 0) > (stats.opponent_score || 0);
