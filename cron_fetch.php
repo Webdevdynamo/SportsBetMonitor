@@ -149,7 +149,6 @@ foreach ($gamesToFetch as $game) {
                         // We use the null-coalescing operator to check both spots
                         // If it's in pass stats (QB), take that. Otherwise, check defense stats (DB).
                         $actualInterceptions = ($pass['interceptions'] ?? 0) + ($def['interceptions'] ?? 0);
-
                         $flatStats[$name] = [
                             'team' => $currentTeamName,
                             'gameStatus' => $game['status'], 
