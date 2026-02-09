@@ -146,19 +146,25 @@ foreach ($gamesToFetch as $game) {
 
                     if ($name) {
                         // 1. Update Individual Player Stats (Offensive focused)
+                        // We use the null-coalescing operator to check both spots
+                        // If it's in pass stats (QB), take that. Otherwise, check defense stats (DB).
+                        $actualInterceptions = ($pass['interceptions'] ?? 0) + ($def['interceptions'] ?? 0);
+
                         $flatStats[$name] = [
-                            'gameStatus' => $game['status'], // e.g., "Q2" or "Halftime"
-                            'clock' => $flatStats[$totalKey]['clock'],
                             'team' => $currentTeamName,
-                            'alias' => $currentTeamAlias,
                             'gameStatus' => $game['status'], 
-                            'pass_yds' => $p['passingStatistics']['yards'] ?? 0,
+                            'pass_yds' => $pass['yards'] ?? 0,
                             'rush_yds' => $p['rushingStatistics']['yards'] ?? 0,
                             'rec_yds' => $p['receivingStatistics']['yards'] ?? 0,
                             'receptions' => $p['receivingStatistics']['receptions'] ?? 0,
-                            'total_tds' => ($p['passingStatistics']['touchdowns'] ?? 0) + 
+                            
+                            // FIXED: Now tracks both thrown and caught picks
+                            'interceptions' => $actualInterceptions, 
+                            
+                            'total_tds' => ($pass['touchdowns'] ?? 0) + 
                                         ($p['rushingStatistics']['touchdowns'] ?? 0) + 
-                                        ($p['receivingStatistics']['touchdowns'] ?? 0)
+                                        ($p['receivingStatistics']['touchdowns'] ?? 0) +
+                                        ($def['touchdowns'] ?? 0)
                         ];
 
                         // 2. Aggregate Player Defense Data into Team D/ST
