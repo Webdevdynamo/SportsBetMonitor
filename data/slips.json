@@ -247,7 +247,7 @@
         "note": "Live Spread Alternate"
       },
       {
-        "player_name": "Kenneth Walker III",
+        "player_name": "Kenneth Walker",
         "metric": "total_tds",
         "target": 0.5,
         "direction": "over",
@@ -276,7 +276,7 @@
   "payout": 67.50,
   "legs": [
     {
-      "player_name": "Kenneth Walker III",
+      "player_name": "Kenneth Walker",
       "metric": "rush_yds",
       "target": 130,
       "direction": "over",
@@ -285,7 +285,7 @@
     {
       "player_name": "Seahawks@Patriots Total",
       "metric": "total_points",
-      "target": 24.5,
+      "target": 33.5,
       "direction": "under",
       "note": "Live Total Alternate - 2nd Half"
     },
