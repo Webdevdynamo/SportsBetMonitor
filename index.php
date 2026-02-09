@@ -267,15 +267,16 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
                     currentLabel = (diff > 0 ? '+' : '') + diff;
                     isWin = (stats.score || 0) > (stats.opponent_score || 0);
                 } else if (leg.metric === 'spread') {
-                    // diff is the actual game margin (e.g., -7 if losing by a TD)
                     const actualDiff = (stats.score || 0) - (stats.opponent_score || 0);
                     
-                    // currentLabel shows the margin vs the spread (e.g., -7 vs -2.5)
-                    currentLabel = (actualDiff > 0 ? '+' : '') + actualDiff;
+                    // This calculates your "Cover Margin"
+                    // Example: 12 + (-16.5) = -4.5
+                    const coverMargin = actualDiff + leg.target; 
                     
-                    // A spread covers if: (Team Score + Spread) > Opponent Score
-                    // Or: (Actual Margin + Spread) > 0
-                    isWin = (actualDiff + leg.target) > 0;
+                    // currentLabel now shows you are -4.5 (meaning you need 4.5 more points to cover)
+                    currentLabel = (coverMargin > 0 ? '+' : '') + coverMargin.toFixed(1);
+                    
+                    isWin = coverMargin > 0;
                 } else {
                     const rawVal = stats[leg.metric] || 0;
                     currentLabel = rawVal;
