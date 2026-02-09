@@ -282,7 +282,7 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
                 // Identify if the period is over for this specific leg
                 const isPeriodOver = (leg.note.includes("1st Half") && ["Halftime", "Q3", "Q4", "Final"].includes(stats.gameStatus)) ||
                                     (leg.note.includes("1st Quarter") && ["Q2", "Halftime", "Q3", "Q4", "Final"].includes(stats.gameStatus));
-                console.log(isPeriodOvera);
+                console.log(isPeriodOver);
 
                 legsHtml += `
                     <div class="leg ${isWin ? 'winning' : 'losing'}" style="${isPeriodOver ? 'opacity: 0.6; border-style: dashed;' : ''}">
