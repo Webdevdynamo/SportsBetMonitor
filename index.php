@@ -249,7 +249,7 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
             });
             return { ...slip, isFinal };
         }).sort((a, b) => a.isFinal - b.isFinal); // False (0) comes before True (1)
-        console.log(sortedSlips);
+        // console.log(sortedSlips);
 
         sortedSlips.forEach(slip => {
             let allFinal = slip.isFinal;
@@ -271,8 +271,8 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
                     currentLabel = rawVal;
                     isWin = (leg.direction === 'over') ? (rawVal >= leg.target) : (rawVal <= leg.target);
                 }
-                console.log(slip);
-                console.log(leg);
+                // console.log(slip);
+                // console.log(leg);
 
                 if (!isWin) slipWinning = false;
 
@@ -286,7 +286,7 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
 
                 const isPeriodOver = (legNote.includes("1st Half") && ["Halftime", "Q3", "Q4", "Final"].includes(currentStatus)) ||
                                     (legNote.includes("1st Quarter") && ["Q2", "Halftime", "Q3", "Q4", "Final"].includes(currentStatus));
-                console.log(isPeriodOver);
+                // console.log(isPeriodOver);
 
                 legsHtml += `
                     <div class="leg ${isWin ? 'winning' : 'losing'}" style="${isPeriodOver ? 'opacity: 0.6; border-style: dashed;' : ''}">
@@ -303,8 +303,22 @@ $slips = file_exists($slips_file) ? json_decode(file_get_contents($slips_file), 
 
             const numOdds = parseInt((slip.odds || "").toString().replace('+', ''));
             const isLegend = numOdds >= 1000;
-            const finalClass = (allFinal) ? (slipWinning ? 'slip-final-win' : 'slip-final-loss') : '';
-            const ribbonHtml = allFinal ? `<div class="status-ribbon">${slipWinning ? 'Win' : 'Loss'}</div>` : '';
+            // const finalClass = (allFinal) ? (slipWinning ? 'slip-final-win' : 'slip-final-loss') : '';
+            // const ribbonHtml = allFinal ? `<div class="status-ribbon">${slipWinning ? 'Win' : 'Loss'}</div>` : '';
+
+            // Determine the final status: check manual override first, then automatic
+            let slipStatus = slip.settled_status || ""; // "win", "loss", or empty
+
+            if (!slipStatus && allFinal) {
+                slipStatus = slipWinning ? "win" : "loss";
+            }
+
+            const finalClass = (slipStatus === "win") ? 'slip-final-win' : 
+                            (slipStatus === "loss") ? 'slip-final-loss' : '';
+
+            const ribbonHtml = (slipStatus !== "") ? 
+                            `<div class="status-ribbon">${slipStatus.toUpperCase()}</div>` : '';
+
             const payout = slip.payout || calculatePayout(slip.wager, slip.odds);
 
             
