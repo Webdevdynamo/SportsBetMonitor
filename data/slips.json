@@ -292,7 +292,7 @@
     {
       "player_name": "Cooper Kupp",
       "metric": "receptions",
-      "target": 6,
+      "target": 5,
       "direction": "over",
       "note": "Live Receptions"
     },
