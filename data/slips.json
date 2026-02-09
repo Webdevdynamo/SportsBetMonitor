@@ -242,7 +242,7 @@
       {
         "player_name": "Seahawks",
         "metric": "spread",
-        "target": -9,
+        "target": -16.5,
         "direction": "over",
         "note": "Live Spread Alternate"
       },
